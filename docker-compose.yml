@@ -1,5 +1,16 @@
 version: "3.9"
 services:
+  scilab:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+    volumes:
+      - "./upload-dir/schemas:/var/lib/bp-app/schemas"
+    ports:
+      - 2222:22
+    expose:
+      - 2222
+
   mysql:
     image: mariadb:10.8.3
     command: --default-authentication-plugin=mysql_native_password
