@@ -1,0 +1,13 @@
+{
+    "Username": "Username",
+    "Email": "Email",
+    "Password": "Password",
+    "RepeatPassword": "Repeat Password",
+    "LoginTitle": "Login",
+    "LoginBtn": "Login",
+    "Register": "Register",
+    "RegisterBtn": "Register",
+    "CreateAccount": "Don't have an account? Register",
+    "LoginToAccount": "Already have an account? Login",
+    "Logout": "Logout"
+}

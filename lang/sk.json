@@ -1,0 +1,13 @@
+{
+    "Username": "Prihlasovacie Meno",
+    "Email": "Email",
+    "Password": "Heslo",
+    "RepeatPassword": "Heslo Znovu",
+    "LoginTitle": "Prihlásenie",
+    "LoginBtn": "Prihlásiť sa",
+    "Register": "Registrácia",
+    "RegisterBtn": "Registrovať sa",
+    "CreateAccount": "Ešte nemáš účet? Zaregistruj sa",
+    "LoginToAccount": "Už máš účet? Prihlás sa",
+    "Logout": "Odhlásiť sa"
+}
