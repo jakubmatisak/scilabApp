@@ -173,6 +173,7 @@ class ExperimentController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'file' => 'required|file',
+            'name' => 'required|string',
             'context' => 'required|json',
             'output' => 'required|json',
             'save' => 'boolean',
@@ -188,6 +189,7 @@ class ExperimentController extends Controller
 
         $experiment = Experiment::create([
             'file_name' => $filePath,
+            'name' => $request->input('name'),
             'context' => $request->input('context'),
             'output' => $request->input('output'),
             'save' => $request->input('save', false),

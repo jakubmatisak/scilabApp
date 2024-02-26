@@ -124,7 +124,7 @@ const onSubmit = async () => {
     }
 
     try {
-        const userData = await mutateAsync({
+        const {data: userData} = await mutateAsync({
             name: formState.username,
             email: formState.email,
             password: formState.password,

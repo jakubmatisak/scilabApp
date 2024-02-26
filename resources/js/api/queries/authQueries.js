@@ -1,15 +1,11 @@
 import { useMutation } from "@tanstack/vue-query";
 import api from "../api";
 
-const signIn = async (signInCredentials) => {
-    const response = await api.post("/auth/login", signInCredentials);
-    return response.data;
-};
+const signIn = (signInCredentials) =>
+    api.post("/auth/login", signInCredentials);
 
-const signUp = async (signUpCredentials) => {
-    const response = await api.post("/auth/register", signUpCredentials);
-    return response.data;
-};
+const signUp = (signUpCredentials) =>
+    api.post("/auth/register", signUpCredentials);
 
 export const useSignInMutation = () => useMutation({ mutationFn: signIn });
 export const useSignUpMutation = () => useMutation({ mutationFn: signUp });

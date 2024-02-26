@@ -5,19 +5,16 @@
     variant="tonal"
   >
     <v-list-item
-      prepend-icon="mdi-folder"
-      title="My Files"
-      value="myfiles"
+      href="/#/experiments/add"
+      prepend-icon="mdi-plus-circle"
+      title="Create experiment"
+      value="addExperiment"
     />
     <v-list-item
-      prepend-icon="mdi-account-multiple"
-      title="Shared with me"
-      value="shared"
-    />
-    <v-list-item
-      prepend-icon="mdi-star"
-      title="Starred"
-      value="starred"
+      href="/#/experiments"
+      prepend-icon="mdi-list-box"
+      title="Experiment List"
+      value="experiments"
     />
   </v-list>
 </template>

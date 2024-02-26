@@ -13,6 +13,7 @@ return new class extends Migration
     {
         Schema::create('experiments', function (Blueprint $table) {
             $table->id();
+            $table->string('name');
             $table->string('file_name');
             $table->json('context');
             $table->json('output');
