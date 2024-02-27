@@ -1,19 +1,16 @@
 <template>
   <div>
-    <v-toolbar class="rounded-t-xl">
-      <v-btn
-        icon
-        to="/experiments"
-      >
-        <v-icon>mdi-arrow-left</v-icon>
-      </v-btn>
-      <v-toolbar-title class="text-h4">
-        Detail View
-      </v-toolbar-title>
-      <v-spacer />
+    <header-component
+      :back-button="true"
+      title="Detail View"
+    >
       <v-btn icon>
         <v-icon>mdi-pencil</v-icon>
       </v-btn>
-    </v-toolbar>
+    </header-component>
   </div>
 </template>
+
+<script setup>
+import HeaderComponent from './components/HeaderComponent.vue';
+</script>

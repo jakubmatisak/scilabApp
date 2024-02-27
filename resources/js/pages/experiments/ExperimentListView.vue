@@ -1,44 +1,40 @@
 <template>
-  <v-data-table-server
-    v-model:items-per-page="itemsPerPage"
-    :headers="headers"
-    item-value="name"
-    :items="experiments"
-    :items-length="totalItems"
-    :loading="isLoading"
-    :search="search"
-    @update:options="loadItems"
-  >
-    <template #top>
-      <v-toolbar
-        class="rounded-t-xl"
+  <div>
+    <header-component title="Experiments">
+      <v-btn
+        prepend-icon="mdi-plus-circle"
+        to="/experiments/add"
+        variant="elevated"
       >
-        <v-toolbar-title class="text-h4">
-          Experiments
-        </v-toolbar-title>
-        <v-btn
-          prepend-icon="mdi-plus-circle"
-          to="/experiments/add"
-          variant="elevated"
+        Create Experiment
+      </v-btn>
+    </header-component>
+    <v-data-table-server
+      v-model:items-per-page="itemsPerPage"
+      class="px-4"
+      :headers="headers"
+      item-value="name"
+      :items="experiments"
+      :items-length="totalItems"
+      :loading="isLoading"
+      :search="search"
+      @update:options="loadItems"
+    >
+      <template #item="{ item }">
+        <tr
+          class="cursor-pointer table-row"
+          @click="onRowClick(item)"
         >
-          Create Experiment
-        </v-btn>
-      </v-toolbar>
-    </template>
-    <template #item="{ item }">
-      <tr
-        class="cursor-pointer table-row"
-        @click="onRowClick(item)"
-      >
-        <td>{{ item.id }}</td>
-        <td>{{ item.name }}</td>
-        <td>{{ item.created_by }}</td>
-        <td class="text-right">
-          {{ parseDate(item.created_at) }}
-        </td>
-      </tr>
-    </template>
-  </v-data-table-server>
+          <td>{{ item.id }}</td>
+          <td>{{ item.name }}</td>
+          <td>{{ item.created_by }}</td>
+          <td class="text-right">
+            {{ parseDate(item.created_at) }}
+          </td>
+        </tr>
+      </template>
+    </v-data-table-server>
+  </div>
 </template>
 
 <script setup>
@@ -46,6 +42,7 @@ import { ref } from "vue";
 import { useRouter } from "vue-router";
 import { useExperimentsListMutation } from "@/api/queries/experimentQueries";
 import {parseDate} from "@/utils/timeUtils";
+import HeaderComponent from "./components/HeaderComponent.vue";
 
 const router = useRouter();
 const {isLoading, mutateAsync} = useExperimentsListMutation();
@@ -72,9 +69,11 @@ const experiments = ref([]);
 const totalItems = ref(0);
 
 const loadItems = () => {
-  mutateAsync().then(({data}) => {
-    experiments.value = data.experiments;
-    totalItems.value = data.experiments.length;
+  mutateAsync().then((data) => {
+    if(data){
+      experiments.value = data.experiments;
+      totalItems.value = data.experiments.length;
+    }
   });
 };
 
@@ -86,5 +85,9 @@ const onRowClick = (item) => {
 <style scoped>
 .table-row:hover {
   background: rgb(var(--v-theme-background));
+}
+
+.v-card-title{
+  padding: 0;
 }
 </style>

@@ -13,5 +13,6 @@
 <style scoped>
   .content-container {
     max-width: 90%;
+    padding: 0;
   }
 </style>
