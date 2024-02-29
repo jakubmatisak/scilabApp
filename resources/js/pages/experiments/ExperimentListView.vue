@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <v-card class="h-100">
     <header-component title="Experiments">
       <v-btn
         prepend-icon="mdi-plus-circle"
@@ -9,43 +9,32 @@
         Create Experiment
       </v-btn>
     </header-component>
-    <v-data-table-server
-      v-model:items-per-page="itemsPerPage"
-      class="px-4"
-      :headers="headers"
-      item-value="name"
-      :items="experiments"
-      :items-length="totalItems"
-      :loading="isLoading"
-      :search="search"
-      @update:options="loadItems"
-    >
-      <template #item="{ item }">
-        <tr
-          class="cursor-pointer table-row"
-          @click="onRowClick(item)"
-        >
-          <td>{{ item.id }}</td>
-          <td>{{ item.name }}</td>
-          <td>{{ item.created_by }}</td>
-          <td class="text-right">
-            {{ parseDate(item.created_at) }}
-          </td>
-        </tr>
-      </template>
-    </v-data-table-server>
-  </div>
+    <v-card-text>
+      <v-data-table-server
+        v-model:items-per-page="itemsPerPage"
+        class="px-4"
+        :headers="headers"
+        :hover="true"
+        :items="experimentsMapped"
+        :items-length="totalItems"
+        :loading="isPending"
+        @row:click="onRowClick"
+        @update:options="loadItems"
+      />
+    </v-card-text>
+  </v-card>
 </template>
 
 <script setup>
-import { ref } from "vue";
+import { computed, ref } from "vue";
 import { useRouter } from "vue-router";
 import { useExperimentsListMutation } from "@/api/queries/experimentQueries";
-import {parseDate} from "@/utils/timeUtils";
 import HeaderComponent from "./components/HeaderComponent.vue";
+import { useDate } from 'vuetify';
 
+const date = useDate();
 const router = useRouter();
-const {isLoading, mutateAsync} = useExperimentsListMutation();
+const {isPending, mutateAsync} = useExperimentsListMutation();
 const itemsPerPage = ref(5);
 const headers= [
   {
@@ -60,13 +49,19 @@ const headers= [
     sortable: true,
     key: "name"
   },
-  { title: 'Created By', key: 'createdBy', align: 'start' },
-  { title: 'Created At', key: 'createdAt', align: 'end' },
+  { title: 'Created By', key: 'created_by', align: 'start' },
+  { title: 'Created At', key: 'created_at', align: 'end' },
 ];
 
-const search = ref('');
 const experiments = ref([]);
 const totalItems = ref(0);
+
+const experimentsMapped = computed(()=>{
+  return experiments.value.map(experiment => ({
+    ...experiment,
+    created_at: date.format(new Date(experiment.created_at), "keyboardDate")
+  }));
+});
 
 const loadItems = () => {
   mutateAsync().then((data) => {
@@ -83,11 +78,11 @@ const onRowClick = (item) => {
 </script>
 
 <style scoped>
-.table-row:hover {
-  background: rgb(var(--v-theme-background));
+.v-card{
+  display: flex !important;
+  flex-direction: column;
 }
-
-.v-card-title{
-  padding: 0;
+.v-card-text{
+  overflow: scroll;
 }
 </style>

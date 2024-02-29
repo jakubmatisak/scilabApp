@@ -1,5 +1,8 @@
 <template>
-  <div>
+  <v-card
+    class="h-100"
+    :loading="isPending"
+  >
     <header-component
       :back-button="true"
       :title="title"
@@ -12,13 +15,15 @@
         <v-icon>mdi-content-save</v-icon>
       </v-btn>
     </header-component>
-    <v-progress-linear
-      :active="isPending"
-      color="blue-grey-lighten-3"
-      height="4"
-      indeterminate
-    />
-    <div class="py-8">
+    <template #loader="{ isActive }">
+      <v-progress-linear
+        :active="isActive"
+        color="blue-grey-lighten-3"
+        height="4"
+        indeterminate
+      />
+    </template>
+    <v-card-text class="py-8">
       <v-form
         ref="form"
         v-model="valid"
@@ -68,8 +73,8 @@
           {{ snackbarText }}
         </v-snackbar>
       </v-form>
-    </div>
-  </div>
+    </v-card-text>
+  </v-card>
 </template>
 
 <script setup>
@@ -147,8 +152,12 @@ const onSaveClicked = async () => {
 .v-card-title{
   padding: 0;
 }
-
+.v-card{
+  display: flex !important;
+  flex-direction: column;
+}
 .v-card-text{
+  overflow: scroll;
   padding: 16;
 }
 </style>
