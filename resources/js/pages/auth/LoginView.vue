@@ -43,14 +43,6 @@
               {{ $t("LoginBtn") }}
             </v-btn>
           </div>
-          <v-snackbar
-            v-model="snackbar"
-            color="error"
-            rounded="pill"
-            :timeout="2000"
-          >
-            {{ error?.response?.data?.message || "Error ocurred" }}
-          </v-snackbar>
         </v-form>
       </v-container>
     </v-card-text>
@@ -62,8 +54,10 @@ import { reactive, ref } from "vue";
 import { useRouter } from "vue-router";
 import { useSignInMutation } from "@/api/queries/authQueries";
 import { useAuthStore } from "@/stores/Auth";
+import { useNotificationStore } from "@/stores/NotificationService";
 
 const router = useRouter();
+const { showSnackbar } = useNotificationStore();
 
 const valid = ref(false);
 const form = ref(null);
@@ -75,7 +69,6 @@ const emailRules = [(value) => !!value || "Email is required"];
 const passwordRules = [(value) => !!value || "Password is required"];
 
 const { mutateAsync, isLoading, error } = useSignInMutation();
-const snackbar = ref(false);
 
 const { signIn } = useAuthStore();
 
@@ -94,8 +87,8 @@ const onSubmit = async () => {
 
         router.push("/");
     } catch (err) {
-        console.error(err.response.data.message);
-        snackbar.value = true;
+        console.error(err);
+        showSnackbar(error.response?.data?.message || "Error ocurred", "error");
     }
 };
 

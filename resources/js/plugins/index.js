@@ -6,6 +6,8 @@ import pinia from "./pinia";
 import router from "../router";
 import VueAxios from "vue-axios";
 import vuetify from "./vuetify";
+import VueApexCharts from "vue3-apexcharts";
+
 
 export const registerPlugins = (app) => {
     app.use(pinia)
@@ -13,5 +15,6 @@ export const registerPlugins = (app) => {
         .use(router)
         .use(VueAxios, api)
         .use(VueQueryPlugin)
-        .use(i18nVue, i18nConfig);
+        .use(i18nVue, i18nConfig)
+        .use(VueApexCharts);
 };

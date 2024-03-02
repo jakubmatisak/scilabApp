@@ -18,7 +18,7 @@
         :items="experimentsMapped"
         :items-length="totalItems"
         :loading="isPending"
-        @row:click="onRowClick"
+        @click:row="onRowClick"
         @update:options="loadItems"
       />
     </v-card-text>
@@ -35,18 +35,16 @@ import { useDate } from 'vuetify';
 const date = useDate();
 const router = useRouter();
 const {isPending, mutateAsync} = useExperimentsListMutation();
-const itemsPerPage = ref(5);
+const itemsPerPage = ref(10);
 const headers= [
   {
     title: 'ID',
     align: 'start',
-    sortable: true,
     key: 'id',
   },
   {
     title: "Name",
     align: "start",
-    sortable: true,
     key: "name"
   },
   { title: 'Created By', key: 'created_by', align: 'start' },
@@ -63,11 +61,11 @@ const experimentsMapped = computed(()=>{
   }));
 });
 
-const loadItems = () => {
-  mutateAsync().then((data) => {
-    if(data){
-      experiments.value = data.experiments;
-      totalItems.value = data.experiments.length;
+const loadItems = ({ page, itemsPerPage, sortBy }) => {
+  mutateAsync({page, itemsPerPage, sortBy: sortBy && sortBy[0]}).then((data) => {
+    if(data?.experiments){
+      experiments.value = data.experiments.data;
+      totalItems.value = data.experiments.total;
     }
   });
 };

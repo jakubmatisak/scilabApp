@@ -82,6 +82,7 @@ import { reactive, ref } from "vue";
 import { useRouter } from "vue-router";
 import { useSignUpMutation } from "@/api/queries/authQueries";
 import { useAuthStore } from "@/stores/Auth";
+import { useNotificationStore } from "@/stores/NotificationService";
 
 const router = useRouter();
 
@@ -110,7 +111,7 @@ const passwordRepeatRules = [
 ];
 
 const { mutateAsync, isLoading } = useSignUpMutation();
-const snackbar = ref(false);
+const { showSnackbar } = useNotificationStore();
 
 const { signIn } = useAuthStore();
 
@@ -138,7 +139,7 @@ const onSubmit = async () => {
         router.push("/");
     } catch (err) {
         console.error(err);
-        snackbar.value = true;
+        showSnackbar(err?.response?.data?.message || "Error ocurred", "error");
     }
 };
 </script>

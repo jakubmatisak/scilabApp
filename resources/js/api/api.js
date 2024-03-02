@@ -1,4 +1,7 @@
 import axios from "axios";
+import { useAuthStore } from "@/stores/Auth";
+import { useNotificationStore } from "../stores/NotificationService";
+import router from "@/router";
 
 const api = axios.create({
     baseURL: "http://127.0.0.1:8000/api/",
@@ -9,16 +12,31 @@ const api = axios.create({
 
 api.interceptors.request.use(
     (config) => {
-        const authStore = localStorage.getItem("auth");
-        const authObject = JSON.parse(authStore);
-        if (authObject?.token) {
-            config.headers.Authorization = `Bearer ${authObject.token}`;
+        const { token } = useAuthStore();
+        if (token) {
+            config.headers.Authorization = `Bearer ${token}`;
         }
         return config;
     },
     (error) => {
         return Promise.reject(error);
     }
+);
+
+api.interceptors.response.use(
+    (response) => response,
+    (error) => {
+        const { showSnackbar } = useNotificationStore();
+        const { signOut } = useAuthStore();
+        if (error.response) {
+            if (error.response.status === 401) {
+                showSnackbar("Your session expired.", "error");
+                signOut();
+                router.push('/login');
+            }
+        }
+        return Promise.reject(error);
+    },
 );
 
 export default api;
