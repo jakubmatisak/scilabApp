@@ -68,7 +68,7 @@ const formState = reactive({
 const emailRules = [(value) => !!value || "Email is required"];
 const passwordRules = [(value) => !!value || "Password is required"];
 
-const { mutateAsync, isLoading, error } = useSignInMutation();
+const { mutateAsync, isLoading } = useSignInMutation();
 
 const { signIn } = useAuthStore();
 
@@ -88,7 +88,7 @@ const onSubmit = async () => {
         router.push("/");
     } catch (err) {
         console.error(err);
-        showSnackbar(error.response?.data?.message || "Error ocurred", "error");
+        showSnackbar(err.response?.data?.message || "Error ocurred", "error");
     }
 };
 
