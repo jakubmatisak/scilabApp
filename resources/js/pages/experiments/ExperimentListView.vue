@@ -70,7 +70,7 @@ const loadItems = ({ page, itemsPerPage, sortBy }) => {
   });
 };
 
-const onRowClick = (item) => {
+const onRowClick = (_, {item}) => {
   router.push(`/experiments/${item.id}`);
 };
 </script>

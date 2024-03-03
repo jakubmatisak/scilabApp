@@ -72,7 +72,7 @@ const outputRules = [(value) => isArrayString(value) || "Output is not a valid A
 const inputRules = [(value) => isJsonString(value) || "Input is not a valid JSON",
                     (value) => onlyNumbersAsValue(value) || "Input must contain only numbers as values"];
 
-                    const onlyUnique = (value, index, array) => {
+const onlyUnique = (value, index, array) => {
   return array.indexOf(value) === index;
 };
 

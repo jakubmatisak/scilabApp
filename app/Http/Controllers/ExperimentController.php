@@ -438,4 +438,46 @@ class ExperimentController extends Controller
             return response()->json(["message"=>"There is no experiment with that id.", 'success' => false], 404);
         }
     }
+
+    public function simulate(Request $request, string $id) {
+        if(!$id){
+            return response()->json(["message"=>"Invalid id.", 'success' => false], 400);
+        }
+
+        $validator = Validator::make($request->all(), [
+            'context' => 'required|json',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json(['errors' => $validator->errors()], 400);
+        }
+
+        // get experiment
+
+        $input_values = json_decode($request->input('context'));
+
+        $context = "";
+        foreach ($input_values as $key => $value) {
+            $context .= "Context.{$key}={$value};";
+        }
+
+        $script = "ssh -i ~/.ssh/id_rsa -p 2222 -q -o \"UserKnownHostsFile=/dev/null\" -o \"StrictHostKeyChecking=no\" root@localhost 'SCRIPT=\"loadXcosLibs();loadScicos();importXcosDiagram('\'/opt/bp-app/1622619815_1619954846_tcn.zcos\'');Context=struct();" . $context . "scicos_simulate(scs_m,list(),Context,'\'nw\'');\" export SCRIPT;' /opt/bp-app/run-script.sh";
+
+        $result = shell_exec($script);
+        
+        $result = explode("\n\n", $result);
+        array_shift($result);
+
+        $result_array = [];
+        foreach ($result as $string) {
+            $string = trim($string);
+            $values = array_map(function($item) {
+                return floatval(trim($item));
+            }, explode("\n", $string));
+
+            array_push($result_array, $values);
+        }
+
+        return response()->json(["simulation"=>$result_array], 201);
+    }
 }

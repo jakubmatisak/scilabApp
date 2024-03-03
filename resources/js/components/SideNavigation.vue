@@ -2,10 +2,16 @@
   <v-navigation-drawer theme="dark">
     <v-list>
       <v-list-item
-        prepend-avatar="https://randomuser.me/api/portraits/men/73.jpg"
         :subtitle="user?.email || 'Unknown Email'"
         :title="user?.name || 'Unknown Name'"
-      />
+      >
+        <template #prepend>
+          <v-avatar
+            color="grey"
+            icon="mdi-account"
+          />
+        </template>
+      </v-list-item>
     </v-list>
     <v-divider thickness="3" />
     <navigation-list />
