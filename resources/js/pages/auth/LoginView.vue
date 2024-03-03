@@ -78,12 +78,12 @@ const onSubmit = async () => {
     }
 
     try {
-        const {data: userData} = await mutateAsync({
+        const { data: userData } = await mutateAsync({
             email: formState.email,
             password: formState.password,
         });
 
-        signIn({ email: formState.email }, userData.token);
+        signIn(userData.user, userData.token);
 
         router.push("/");
     } catch (err) {

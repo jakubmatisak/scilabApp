@@ -192,16 +192,17 @@ class ExperimentController extends Controller
 
         $file = $request->file('file');
         $originalFileName = $file->getClientOriginalName();
-        $filePath = $file->storeAs('experiment_files', $originalFileName);
+        $fileName = time().'_'.$originalFileName;
+        $filePath = $file->storeAs('experiment_files', $fileName);
 
-        // $experiment = Experiment::create([
-        //     'file_name' => $filePath,
-        //     'name' => $request->input('name'),
-        //     'context' => $request->input('context'),
-        //     'output' => $request->input('output'),
-        //     'save' => $request->input('save', false),
-        //     'created_by' => auth()->id(),
-        // ]);
+        $experiment = Experiment::create([
+            'file_name' => $originalFileName,
+            'file_path' => $filePath,
+            'name' => $request->input('name'),
+            'context' => $request->input('context'),
+            'output' => $request->input('output'),
+            'created_by' => auth()->id(),
+        ]);
 
         $output_values = json_decode($request->input('output'));
         $input_values = json_decode($request->input('context'));
@@ -325,8 +326,7 @@ class ExperimentController extends Controller
 
         try{
             $experiment = Experiment::findOrFail($id);
-            $filePath = $experiment->file_name;
-            // $filePath = $experiment->get('file_name');
+            $filePath = $experiment->file_path;
 
             return Storage::response($filePath);
         } catch(\Exception $_){
@@ -347,7 +347,94 @@ class ExperimentController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        //
+        if(!$id){
+            return response()->json(["message"=>"Invalid id."], 400);
+        }
+
+        try {
+            $experiment = Experiment::findOrFail($id);
+            $userId = auth()->id();
+
+            if ($userId != $experiment->created_by) {
+                return response()->json(["message"=>"You don't have permission to edit this experiment."], 403);
+            }
+
+            $validator = Validator::make($request->all(), [
+                'file' => 'file',
+                'name' => 'string',
+                'context' => 'json',
+                'output' => 'json',
+            ]);
+
+            if ($validator->fails()) {
+                return response()->json(['errors' => $validator->errors()], 400);
+            }
+
+            $originalFileName = $experiment->file_name;
+            $filePath = $experiment->file_path;
+            $name = $request->input('name', $experiment->name);
+            $context = $request->input('context', $experiment->context);
+            $output = $request->input('output', $experiment->output);
+
+            if ($request->has('file')) {
+                Storage::delete($filePath);
+
+                $file = $request->file('file');
+                $originalFileName = $file->getClientOriginalName();
+                $fileName = time().'_'.$originalFileName;
+                $filePath = $file->storeAs('experiment_files', $fileName);
+            }
+            
+            $experiment->update([
+                'file_name' => $originalFileName,
+                'file_path' => $filePath,
+                'name' => $name,
+                'context' => $context,
+                'output' => $output,
+            ]);
+
+            $output_values = json_decode($output);
+            $input_values = json_decode($context);
+
+            $context = "";
+            foreach ($input_values as $key => $value) {
+                $context .= "Context.{$key}={$value};";
+            }
+            
+            $script = "ssh -i ~/.ssh/id_rsa -p 2222 -q -o \"UserKnownHostsFile=/dev/null\" -o \"StrictHostKeyChecking=no\" root@localhost 'SCRIPT=\"loadXcosLibs();loadScicos();importXcosDiagram('\'/opt/bp-app/1622619815_1619954846_tcn.zcos\'');Context=struct();" . $context . "scicos_simulate(scs_m,list(),Context,'\'nw\'');\" export SCRIPT;' /opt/bp-app/run-script.sh";
+
+            $result = shell_exec($script);
+
+            $result = explode("\n\n", $result);
+            array_shift($result);
+
+            $result_array = [];
+            foreach ($result as $string) {
+                $string = trim($string);
+                $values = array_map(function($item) {
+                    return floatval(trim($item));
+                }, explode("\n", $string));
+
+                $values_count = count($values);
+                $output_count = count($output_values);
+
+                if($values_count <= $output_count){
+                    $obj = [];
+                    for($i = 0; $i < $values_count; $i++){
+                        $obj[$output_values[$i]] = $values[$i];
+                    }
+
+                    array_push($result_array, $obj);
+                } else {
+                    array_push($result_array, $values);
+                }
+            }
+
+            return response()->json(["simulation"=>$result_array], 201);
+
+        } catch(\Exception $_) {
+            return response()->json(["message"=>"There is no experiment with that id."], 404);
+        }
     }
 
     /**
@@ -423,7 +510,7 @@ class ExperimentController extends Controller
         }
         try{
             $experiment = Experiment::findOrFail($id);
-            $filePath = $experiment->file_name;
+            $filePath = $experiment->file_path;
 
             try{
                 Storage::delete($filePath);
@@ -452,32 +539,51 @@ class ExperimentController extends Controller
             return response()->json(['errors' => $validator->errors()], 400);
         }
 
-        // get experiment
-
-        $input_values = json_decode($request->input('context'));
-
-        $context = "";
-        foreach ($input_values as $key => $value) {
-            $context .= "Context.{$key}={$value};";
-        }
-
-        $script = "ssh -i ~/.ssh/id_rsa -p 2222 -q -o \"UserKnownHostsFile=/dev/null\" -o \"StrictHostKeyChecking=no\" root@localhost 'SCRIPT=\"loadXcosLibs();loadScicos();importXcosDiagram('\'/opt/bp-app/1622619815_1619954846_tcn.zcos\'');Context=struct();" . $context . "scicos_simulate(scs_m,list(),Context,'\'nw\'');\" export SCRIPT;' /opt/bp-app/run-script.sh";
-
-        $result = shell_exec($script);
+        $experiment = "";
         
-        $result = explode("\n\n", $result);
-        array_shift($result);
+        try{
+            $experiment = Experiment::findOrFail($id);
 
-        $result_array = [];
-        foreach ($result as $string) {
-            $string = trim($string);
-            $values = array_map(function($item) {
-                return floatval(trim($item));
-            }, explode("\n", $string));
+            $output_values = json_decode($experiment->output);
+            $input_values = json_decode($request->input('context'));
 
-            array_push($result_array, $values);
+            $context = "";
+            foreach ($input_values as $key => $value) {
+                $context .= "Context.{$key}={$value};";
+            }
+
+            $script = "ssh -i ~/.ssh/id_rsa -p 2222 -q -o \"UserKnownHostsFile=/dev/null\" -o \"StrictHostKeyChecking=no\" root@localhost 'SCRIPT=\"loadXcosLibs();loadScicos();importXcosDiagram('\'/opt/bp-app/1622619815_1619954846_tcn.zcos\'');Context=struct();" . $context . "scicos_simulate(scs_m,list(),Context,'\'nw\'');\" export SCRIPT;' /opt/bp-app/run-script.sh";
+
+            $result = shell_exec($script);
+            
+            $result = explode("\n\n", $result);
+            array_shift($result);
+
+            $result_array = [];
+            foreach ($result as $string) {
+                $string = trim($string);
+                $values = array_map(function($item) {
+                    return floatval(trim($item));
+                }, explode("\n", $string));
+
+                $values_count = count($values);
+                $output_count = count($output_values);
+
+                if($values_count <= $output_count){
+                    $obj = [];
+                    for($i = 0; $i < $values_count; $i++){
+                        $obj[$output_values[$i]] = $values[$i];
+                    }
+
+                    array_push($result_array, $obj);
+                } else {
+                    array_push($result_array, $values);
+                }
+            }
+
+            return response()->json(["simulation"=>$result_array], 201);
+        } catch(\Exception $_){
+            return response()->json(["message"=>"There is no experiment with that id."], 400);
         }
-
-        return response()->json(["simulation"=>$result_array], 201);
     }
 }

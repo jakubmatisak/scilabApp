@@ -18,15 +18,20 @@ const experimentsList = async ({ page, itemsPerPage, sortBy }) => {
     }
 };
 
-const experimentCreate = async (experimentData) => {
+const experimentSave = async (experimentData) => {
+    const isUpdate = !!experimentData.id;
+    const url = isUpdate ? `/experiments/${experimentData.id}` : "/experiments";
+
     const formData = new FormData();
-    formData.append("file", experimentData.file);
+    if (experimentData.file) {
+        formData.append("file", experimentData.file);
+    }
     formData.append("name", experimentData.name);
     formData.append("context", experimentData.context);
     formData.append("output", experimentData.output);
 
     try {
-        const data = await api.post("/experiments", formData, {
+        const data = await api.post(url, formData, {
             headers: {
                 "Content-Type": "multipart/form-data",
             },
@@ -70,7 +75,7 @@ const experimentSimulate = async ({ id, context }) => {
 export const useExperimentsListMutation = () =>
     useMutation({ mutationFn: experimentsList });
 export const useExperimentSaveMutation = () =>
-    useMutation({ mutationFn: experimentCreate });
+    useMutation({ mutationFn: experimentSave });
 export const useExperimentDetailMutation = () =>
     useMutation({ mutationFn: experimentDetail });
 export const useExperimentSimulateMutation = () =>

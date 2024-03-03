@@ -3,17 +3,17 @@ import { useAuthStore } from "../../stores/Auth";
 
 export const authGuard = (to) => {
     const authStore = useAuthStore();
-    const { user } = storeToRefs(authStore);
+    const { currentLoggedUser } = storeToRefs(authStore);
 
     if (to.fullPath === "/login" || to.fullPath === "/register") {
-        if (user.value) {
+        if (currentLoggedUser.value) {
             return { path: "/" };
         }
 
         return true;
     }
 
-    if (!user.value) {
+    if (!currentLoggedUser.value) {
         return { path: "/login" };
     }
 

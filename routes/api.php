@@ -31,4 +31,5 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::get('experiments/{id}/schemas', [ExperimentController::class, 'getSchemaFile']);
     Route::delete('experiments/{id}', [ExperimentController::class, 'destroy']);
     Route::post('experiments/{id}/simulate', [ExperimentController::class, 'simulate']);
+    Route::post('experiments/{id}', [ExperimentController::class, 'update']);
 });

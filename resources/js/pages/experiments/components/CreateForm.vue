@@ -16,12 +16,18 @@
       v-model="formState.file"
       accept=".zcos"
       chips
-      class="mb-4"
+      :class="{ 'mb-4': !file }"
       label="Experiment file"
       required
       :rules="fileRules"
       variant="outlined"
     />
+    <div
+      v-if="file"
+      class="file-info mb-8 ml-10"
+    >
+      <strong>File:</strong> {{ file }}
+    </div>
     <v-textarea
       v-model="formState.output"
       class="mb-4"
@@ -41,14 +47,18 @@
 </template>
 
 <script setup>
-import { reactive } from 'vue';
-import { ref } from 'vue';
+import { reactive, watch } from "vue";
+import { ref } from "vue";
 
-defineProps({
+const props = defineProps({
     loading: {
         type: Boolean,
-        required: true
-    }
+        required: true,
+    },
+    experiment: {
+        type: Object,
+        default: undefined,
+    },
 });
 
 const form = ref(null);
@@ -58,68 +68,100 @@ const formState = reactive({
     output: "[]",
     input: "{}",
 });
+const file = ref("");
+
+watch(props, () => {
+    if (props.experiment) {
+        const { context, name, output, file_name } = props.experiment;
+        formState.input = context;
+        formState.output = output;
+        formState.name = name;
+        file.value = file_name;
+    }
+});
 
 defineExpose({
-    form, formState
+    form,
+    formState,
+    file,
 });
 
 const nameRules = [(value) => !!value || "Name is required"];
-const fileRules = [(value) => !value || !!value.length || "Experiment schema is required"];
-const outputRules = [(value) => isArrayString(value) || "Output is not a valid Array",
-                      (value) => onlyStrings(value) || "Output must contain only strings",
-                      (value) => containsUnique(value) || "Output must contain unique strings"
-                    ];
-const inputRules = [(value) => isJsonString(value) || "Input is not a valid JSON",
-                    (value) => onlyNumbersAsValue(value) || "Input must contain only numbers as values"];
+const fileRules = [
+    (value) =>
+        !value ||
+        !!value.length ||
+        !!file.value ||
+        "Experiment schema is required",
+];
+const outputRules = [
+    (value) => isArrayString(value) || "Output is not a valid Array",
+    (value) => onlyStrings(value) || "Output must contain only strings",
+    (value) => containsUnique(value) || "Output must contain unique strings",
+];
+const inputRules = [
+    (value) => isJsonString(value) || "Input is not a valid JSON",
+    (value) =>
+        onlyNumbersAsValue(value) ||
+        "Input must contain only numbers as values",
+];
 
 const onlyUnique = (value, index, array) => {
-  return array.indexOf(value) === index;
+    return array.indexOf(value) === index;
 };
 
 const containsUnique = (arrayString) => {
-  const array = JSON.parse(arrayString);
-  const uniqueArray = array.filter(onlyUnique);
-  return uniqueArray.length === array.length;
+    const array = JSON.parse(arrayString);
+    const uniqueArray = array.filter(onlyUnique);
+    return uniqueArray.length === array.length;
 };
 
 const onlyStrings = (arrayString) => {
-  const array = JSON.parse(arrayString);
-  const notString = array.find(item=> typeof item !== "string");
+    const array = JSON.parse(arrayString);
+    const notString = array.find((item) => typeof item !== "string");
 
-  return !notString;
+    return !notString;
 };
 
 const isArrayString = (arrayString) => {
-  try {
+    try {
         const o = JSON.parse(arrayString);
 
         if (o && typeof o === "object" && Array.isArray(o)) {
             return true;
         }
+    } catch (e) {
+        /* empty */
     }
-    catch (e) { /* empty */ }
 
     return false;
 };
 
 const onlyNumbersAsValue = (jsonString) => {
-  const o = JSON.parse(jsonString);
-  const values = Object.values(o);
-  const notNumber = values.find(item => typeof item !== "number");
+    const o = JSON.parse(jsonString);
+    const values = Object.values(o);
+    const notNumber = values.find((item) => typeof item !== "number");
 
-  return notNumber === undefined;
+    return notNumber === undefined;
 };
 
 const isJsonString = (jsonString) => {
-  try {
+    try {
         const o = JSON.parse(jsonString);
 
         if (o && typeof o === "object") {
             return true;
         }
+    } catch (e) {
+        /* empty */
     }
-    catch (e) { /* empty */ }
 
     return false;
 };
 </script>
+
+<style scoped>
+.file-info {
+    margin-top: -16px;
+}
+</style>

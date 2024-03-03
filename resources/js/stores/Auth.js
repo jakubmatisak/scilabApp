@@ -1,23 +1,39 @@
 import { defineStore } from "pinia";
 import { ref } from "vue";
+import { useCurrentLoggedUserMutation } from "@/api/queries/authQueries";
 
 export const useAuthStore = defineStore(
     "auth",
     () => {
-        const user = ref();
+        const currentLoggedUser = ref();
         const token = ref("");
 
+        const { mutateAsync } = useCurrentLoggedUserMutation();
+        if (token.value) {
+            mutateAsync().then((data) => {
+                if (data) {
+                    const userData = data.data;
+
+                    delete userData.created_at;
+                    delete userData.email_verified_at;
+                    delete userData.updated_at;
+
+                    currentLoggedUser.value = userData;
+                }
+            });
+        }
+
         const signIn = (signedInUser, newToken) => {
-            user.value = signedInUser;
+            currentLoggedUser.value = signedInUser;
             token.value = newToken;
         };
 
         const signOut = () => {
-            user.value = undefined;
+            currentLoggedUser.value = undefined;
             token.value = "";
         };
 
-        return { user, token, signIn, signOut };
+        return { currentLoggedUser, token, signIn, signOut };
     },
     {
         persist: true,

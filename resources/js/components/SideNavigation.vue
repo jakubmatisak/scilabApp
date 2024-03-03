@@ -2,8 +2,8 @@
   <v-navigation-drawer theme="dark">
     <v-list>
       <v-list-item
-        :subtitle="user?.email || 'Unknown Email'"
-        :title="user?.name || 'Unknown Name'"
+        :subtitle="currentLoggedUser?.email || 'Unknown Email'"
+        :title="currentLoggedUser?.name || 'Unknown Name'"
       >
         <template #prepend>
           <v-avatar
@@ -28,5 +28,5 @@ import NavigationList from "@/components/NavigationList.vue";
 import LogoutBtn from "@/components/LogoutBtn.vue";
 
 const authStore = useAuthStore();
-const { user } = storeToRefs(authStore);
+const { currentLoggedUser } = storeToRefs(authStore);
 </script>

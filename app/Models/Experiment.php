@@ -10,7 +10,7 @@ class Experiment extends Model
     use HasFactory;
 
     protected $fillable = [
-        'file_name', 'name', 'context', 'output', 'save', 'created_by'
+        'file_name', 'name', 'context', 'output', 'created_by', 'file_path'
     ];
 
     public function user()

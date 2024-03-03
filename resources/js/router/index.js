@@ -4,7 +4,7 @@ import MainLayout from "@/layouts/MainLayout.vue";
 import LoginView from "@/pages/auth/LoginView.vue";
 import RegisterView from "@/pages/auth/RegisterView.vue";
 import ExperimentListView from "@/pages/experiments/ExperimentListView.vue";
-import ExperimentCreateView from "@/pages/experiments/CreateView";
+import ExperimentSaveView from "@/pages/experiments/SaveView";
 import ExperimentDetailView from "@/pages/experiments/DetailView";
 import { authGuard } from "./Guards/AuthGuard";
 
@@ -37,27 +37,27 @@ const routes = [
         beforeEnter: [authGuard],
         children: [
             {
-                path:"",
+                path: "",
                 component: ExperimentListView,
             },
             {
                 path: "add",
-                component: ExperimentCreateView,
+                component: ExperimentSaveView,
             },
             {
                 path: ":id",
                 component: ExperimentDetailView,
             },
             {
-                path: ':id/edit',
-                component: ExperimentCreateView,
-            }
-        ]
+                path: ":id/edit",
+                component: ExperimentSaveView,
+            },
+        ],
     },
     {
-        path: '/',
-        redirect: '/experiments',
-    }
+        path: "/",
+        redirect: "/experiments",
+    },
 ];
 
 const router = createRouter({

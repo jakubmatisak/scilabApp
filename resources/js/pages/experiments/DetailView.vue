@@ -4,7 +4,11 @@
       :back-button="true"
       title="Detail View"
     >
-      <v-btn icon>
+      <v-btn
+        v-if="data?.experiment?.created_by === currentLoggedUser.id"
+        icon
+        :to="`/experiments/${data?.experiment?.id}/edit`"
+      >
         <v-icon>mdi-pencil</v-icon>
       </v-btn>
     </header-component>
@@ -21,29 +25,11 @@
           </div>
         </div>
         <v-divider />
-        <v-form
-          ref="form"
-          class="mt-10"
-          :disabled="isPendingSimulation"
-          validate-on="submit"
-          @submit.prevent="onSubmit"
-        >
-          <v-textarea
-            v-model="experimentInput"
-            label="Input object"
-            prepend-icon="mdi-code-json"
-            :rules="inputRules"
-            variant="outlined"
-          />
-          <div class="d-flex justify-end">
-            <v-btn
-              :disabled="isPendingSimulation"
-              type="submit"
-            >
-              Simulate
-            </v-btn>
-          </div>
-        </v-form>
+        <simulate-form
+          :context="data?.experiment?.context || ''"
+          :loading="isPendingSimulation"
+          :submit="handleSubmit"
+        />
         <v-container>
           <graph-component :data="graphData" />
         </v-container>
@@ -54,7 +40,7 @@
 
 <script setup>
 import { useRoute } from "vue-router";
-import { onMounted, ref } from "vue";
+import { onMounted, watch, ref } from "vue";
 import {
     useExperimentDetailMutation,
     useExperimentSimulateMutation,
@@ -62,61 +48,43 @@ import {
 import { useNotificationStore } from "@/stores/NotificationService";
 import HeaderComponent from "./components/HeaderComponent.vue";
 import GraphComponent from "./components/GraphComponent.vue";
+import { useAuthStore } from "@/stores/Auth";
+import { storeToRefs } from "pinia";
+import SimulateForm from "./components/SimulateForm.vue";
 
 const route = useRoute();
 const { id } = route.params;
 const graphData = ref([]);
+
+const authStore = useAuthStore();
+const { currentLoggedUser } = storeToRefs(authStore);
+
 const { data, mutateAsync } = useExperimentDetailMutation();
 const { mutateAsync: simulate, isPending: isPendingSimulation } =
     useExperimentSimulateMutation();
+
 const { showSnackbar } = useNotificationStore();
 
 onMounted(async () => {
-    const { experiment } = await mutateAsync(id);
-    experimentInput.value = experiment.context;
+    mutateAsync(id);
 });
 
-const form = ref(null);
-const experimentInput = ref("");
-
-const inputRules = [
-    (value) => isJsonString(value) || "Input is not a valid JSON",
-    (value) =>
-        onlyNumbersAsValue(value) ||
-        "Input must contain only numbers as values",
-];
-
-const isJsonString = (jsonString) => {
-    try {
-        const o = JSON.parse(jsonString);
-
-        if (o && typeof o === "object") {
-            return true;
-        }
-    } catch (e) {
-        /* empty */
+watch(route, () => {
+    if (route.params.id) {
+        mutateAsync(route.params.id);
     }
+});
 
-    return false;
-};
-
-const onlyNumbersAsValue = (jsonString) => {
-    const o = JSON.parse(jsonString);
-    const values = Object.values(o);
-    const notNumber = values.find((item) => typeof item !== "number");
-
-    return notNumber === undefined;
-};
-
-const onSubmit = async () => {
+const handleSubmit = async (context) => {
     try {
         const { simulation } = await simulate({
-            context: experimentInput.value,
+            context,
+            id: route.params.id,
         });
 
         showSnackbar("Experiment simulated successfully", "success");
         graphData.value = simulation;
-    } catch (err) {
+    } catch (_) {
         showSnackbar("There was an error when simulating Experiment", "error");
     }
 };
