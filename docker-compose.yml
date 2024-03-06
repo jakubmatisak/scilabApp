@@ -1,27 +1,31 @@
 version: "3.9"
 services:
-  scilab:
-    build:
-      context: .
-      dockerfile: docker/Dockerfile
-    volumes:
-      - "./upload-dir/schemas:/var/lib/bp-app/schemas"
-    ports:
-      - 2222:22
-    expose:
-      - 2222
+    scilab:
+        build:
+            context: .
+            dockerfile: docker/Dockerfile
+        volumes:
+            - "./storage/app/experiment_files:/var/lib/scilab-app/storage/app/experiment_files"
+        restart: always
+        ports:
+            - 8000:8000
+            - 3000:3000
+        depends_on:
+            - database
 
-  mysql:
-    image: mariadb:10.8.3
-    command: --default-authentication-plugin=mysql_native_password
-    restart: always
-    environment:
-      MYSQL_ROOT_PASSWORD: root
-    ports:
-      - 3306:3306
+    database:
+        image: mysql:8.0
+        ports:
+            - 3306:3306
+        restart: always
+        environment:
+            - MYSQL_DATABASE=${DB_DATABASE}
+            - MYSQL_USER=${DB_USERNAME}
+            - MYSQL_PASSWORD=${DB_PASSWORD}
+            - MYSQL_RANDOM_ROOT_PASSWORD=yes
 
-  adminer:
-    image: adminer
-    restart: always
-    ports:
-      - 8080:8080
+    adminer:
+        image: adminer
+        restart: always
+        ports:
+            - 8080:8080

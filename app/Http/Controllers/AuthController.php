@@ -71,9 +71,12 @@ class AuthController extends Controller
                 'password' => Hash::make($request->password)
             ]);
 
+            $expiresAt = new \DateTime();
+            $expiresAt->add(new \DateInterval('PT' . config('sanctum.refresh_by') . 'M'));
+
             return response()->json([
                 'message' => 'User Created Successfully',
-                'token' => $user->createToken("AUTH TOKEN")->plainTextToken,
+                'token' => $user->createToken("AUTH TOKEN", ['*'], $expiresAt)->plainTextToken,
                 'user' => $user
             ], 200);
 
@@ -146,10 +149,12 @@ class AuthController extends Controller
             }
 
             $user = User::where('email', $request->email)->first();
+            $expiresAt = new \DateTime();
+            $expiresAt->add(new \DateInterval('PT' . config('sanctum.refresh_by') . 'M'));
 
             return response()->json([
                 'message' => 'User Logged In Successfully',
-                'token' => $user->createToken("AUTH TOKEN")->plainTextToken,
+                'token' => $user->createToken("AUTH TOKEN", ['*'], $expiresAt)->plainTextToken,
                 'user' => $user
             ], 200);
 

@@ -46,7 +46,7 @@ return [
     |
     */
 
-    'expiration' => 120,
+    'expiration' => 1440,
 
     /*
     |--------------------------------------------------------------------------
@@ -79,5 +79,7 @@ return [
         'encrypt_cookies' => App\Http\Middleware\EncryptCookies::class,
         'verify_csrf_token' => App\Http\Middleware\VerifyCsrfToken::class,
     ],
+
+    'refresh_by' => 120,
 
 ];
