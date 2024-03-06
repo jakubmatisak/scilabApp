@@ -45,12 +45,10 @@ RUN cd /tmp \
 
 # Copy run-script for executing scilab simulations
 COPY docker/run-script.sh /scripts/
-COPY docker/test-script.sh /scripts/
 
-# Add permissions for running scripts
+# Add permissions for running script
 RUN chown -R root:root /root/ \
     && chmod +x /scripts/run-script.sh \
-    && chmod +x /scripts/test-script.sh
 
 RUN mkdir scilabApp
 
