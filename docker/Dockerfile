@@ -1,4 +1,4 @@
-FROM ubuntu:22.04 AS base
+FROM ubuntu:22.04
 
 ENV DEBIAN_FRONTEND noninteractive
 
@@ -36,11 +36,11 @@ RUN apt install -y nodejs
 # Install scilab and its dependencies
 RUN cd /tmp \
     && apt install -y wget libx11-6 libjogl2-java libtinfo5 libxft2 libxext6 libxtst6 \
-    && wget https://www.scilab.org/download/6.1.1/scilab-6.1.1.bin.linux-x86_64.tar.gz \
-    && tar -xzf scilab-6.1.1.bin.linux-x86_64.tar.gz \
-    && mv scilab-6.1.1/ /opt/scilab \
+    && wget https://www.scilab.org/download/6.0.2/scilab-6.0.2.bin.linux-x86_64.tar.gz \
+    && tar -xzf scilab-6.0.2.bin.linux-x86_64.tar.gz \
+    && mv scilab-6.0.2/ /opt/scilab \
     && chown -R root:root /opt/scilab \
-    && rm scilab-6.1.1.bin.linux-x86_64.tar.gz \
+    && rm scilab-6.0.2.bin.linux-x86_64.tar.gz \
     && mkdir -p /scripts
 
 # Copy run-script for executing scilab simulations
@@ -48,7 +48,7 @@ COPY docker/run-script.sh /scripts/
 
 # Add permissions for running script
 RUN chown -R root:root /root/ \
-    && chmod +x /scripts/run-script.sh \
+    && chmod +x /scripts/run-script.sh
 
 RUN mkdir scilabApp
 
@@ -59,6 +59,7 @@ RUN chown -R www-data:www-data /var/www/html
 
 RUN npm install
 
-RUN chmod +x ./docker/entrypoint-install.sh
+RUN chmod +x ./docker/entrypoint-install.sh ./docker/wait-for-it.sh
 ENV PORT=8000
-ENTRYPOINT [ "docker/entrypoint-install.sh" ]
+ENTRYPOINT [ "/bin/bash", "-c" ]
+CMD [ "docker/wait-for-it.sh $DB_HOST:$DB_PORT --strict --quiet -- docker/entrypoint-install.sh" ]

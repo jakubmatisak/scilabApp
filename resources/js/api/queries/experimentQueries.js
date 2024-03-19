@@ -26,9 +26,14 @@ const experimentSave = async (experimentData) => {
     if (experimentData.file) {
         formData.append("file", experimentData.file);
     }
-    formData.append("name", experimentData.name);
+
+    if (experimentData.name) {
+        formData.append("name", experimentData.name);
+    }
+
     formData.append("context", experimentData.context);
     formData.append("output", experimentData.output);
+    formData.append("save", experimentData.save);
 
     try {
         const data = await api.post(url, formData, {
@@ -72,6 +77,20 @@ const experimentSimulate = async ({ id, context }) => {
     }
 };
 
+const experimentDestroy = async (id) => {
+    const url = `/experiments/${id}`;
+
+    try {
+        const { data } = await api.delete(url);
+
+        return data;
+    } catch (err) {
+        console.error(err.message);
+
+        return err;
+    }
+};
+
 export const useExperimentsListMutation = () =>
     useMutation({ mutationFn: experimentsList });
 export const useExperimentSaveMutation = () =>
@@ -80,3 +99,5 @@ export const useExperimentDetailMutation = () =>
     useMutation({ mutationFn: experimentDetail });
 export const useExperimentSimulateMutation = () =>
     useMutation({ mutationFn: experimentSimulate });
+export const useExperimentDestroyMutation = () =>
+    useMutation({ mutationFn: experimentDestroy });

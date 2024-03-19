@@ -5,7 +5,7 @@
       prepend-icon="mdi-logout"
       @click="onLogoutClicked"
     >
-      Logout
+      {{ $t("Logout") }}
     </v-btn>
   </div>
 </template>

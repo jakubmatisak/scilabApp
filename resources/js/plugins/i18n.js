@@ -1,4 +1,5 @@
 const i18nConfig = {
+    lang: "sk",
     resolve: async (lang) => {
         const langs = import.meta.glob("../../../lang/*.json");
 
@@ -9,7 +10,7 @@ const i18nConfig = {
             console.error(
                 `Could not load ${lang}, falling back to default language.`
             );
-            const fallbackLang = "en";
+            const fallbackLang = "sk";
             const fallbackLangModule = await langs[
                 `../../../lang/${fallbackLang}.json`
             ]();

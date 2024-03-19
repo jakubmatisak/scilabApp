@@ -5,15 +5,17 @@
     variant="tonal"
   >
     <v-list-item
+      :active="$route.path === '/experiments/add'"
       href="/#/experiments/add"
       prepend-icon="mdi-plus-circle"
-      title="Create experiment"
+      :title="$t('CreateExperiment')"
       value="addExperiment"
     />
     <v-list-item
+      :active="$route.path === '/experiments'"
       href="/#/experiments"
       prepend-icon="mdi-list-box"
-      title="Experiment List"
+      :title="$t('ExperimentList')"
       value="experiments"
     />
   </v-list>

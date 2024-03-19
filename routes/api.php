@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ExperimentController;
+use App\Http\Controllers\UserController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -32,4 +33,7 @@ Route::middleware(['auth:sanctum', 'token.refresh'])->group(function () {
     Route::delete('experiments/{id}', [ExperimentController::class, 'destroy']);
     Route::post('experiments/{id}/simulate', [ExperimentController::class, 'simulate']);
     Route::post('experiments/{id}', [ExperimentController::class, 'update']);
+
+    Route::get('user/{id}', [UserController::class, 'show']);
+    Route::get('users', [UserController::class, 'index']);
 });

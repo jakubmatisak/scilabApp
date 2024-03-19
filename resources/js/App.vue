@@ -12,7 +12,7 @@
 </template>
 
 <script setup>
-import { useNotificationStore } from '@/stores/NotificationService';
+import { useNotificationStore } from "@/stores/NotificationService";
 
-const {snackbar} = useNotificationStore();
+const { snackbar } = useNotificationStore();
 </script>

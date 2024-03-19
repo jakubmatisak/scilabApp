@@ -9,8 +9,8 @@ export const useAuthStore = defineStore(
         const token = ref("");
 
         const { mutateAsync } = useCurrentLoggedUserMutation();
-        if (token.value) {
-            mutateAsync().then((data) => {
+        mutateAsync()
+            .then((data) => {
                 if (data) {
                     const userData = data.data;
 
@@ -20,8 +20,8 @@ export const useAuthStore = defineStore(
 
                     currentLoggedUser.value = userData;
                 }
-            });
-        }
+            })
+            .catch((err) => console.error(err.message));
 
         const signIn = (signedInUser, newToken) => {
             currentLoggedUser.value = signedInUser;

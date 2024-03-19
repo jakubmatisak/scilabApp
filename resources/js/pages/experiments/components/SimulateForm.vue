@@ -8,7 +8,7 @@
   >
     <v-textarea
       v-model="experimentInput"
-      label="Input object"
+      :label="$t('ExperimentContext')"
       prepend-icon="mdi-code-json"
       :rules="inputRules"
       variant="outlined"
@@ -16,15 +16,18 @@
     <div class="d-flex justify-end">
       <v-btn
         :disabled="loading"
+        :size="width < 600 ? 'small' : 'default'"
         type="submit"
       >
-        Simulate
+        {{ $t("Simulate") }}
       </v-btn>
     </div>
   </v-form>
 </template>
 
 <script setup>
+import { useWindowSize } from "@vueuse/core";
+import { trans } from "laravel-vue-i18n";
 import { ref, watch } from "vue";
 
 const props = defineProps({
@@ -42,18 +45,18 @@ const props = defineProps({
     },
 });
 
+const { width } = useWindowSize();
 const form = ref(null);
 const experimentInput = ref("");
 
-watch(props, () => {
-    experimentInput.value = props.context;
+watch(props, (newVal, oldVal) => {
+    if (newVal.context !== oldVal.context || !experimentInput.value) {
+        experimentInput.value = props.context;
+    }
 });
 
 const inputRules = [
-    (value) => isJsonString(value) || "Input is not a valid JSON",
-    (value) =>
-        onlyNumbersAsValue(value) ||
-        "Input must contain only numbers as values",
+    (value) => isJsonString(value) || trans("ExperimentContextError"),
 ];
 
 const isJsonString = (jsonString) => {
@@ -68,14 +71,6 @@ const isJsonString = (jsonString) => {
     }
 
     return false;
-};
-
-const onlyNumbersAsValue = (jsonString) => {
-    const o = JSON.parse(jsonString);
-    const values = Object.values(o);
-    const notNumber = values.find((item) => typeof item !== "number");
-
-    return notNumber === undefined;
 };
 
 const onSubmit = () => {

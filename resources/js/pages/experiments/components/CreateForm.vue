@@ -3,53 +3,133 @@
     ref="form"
     :disabled="loading"
   >
-    <v-text-field
-      v-model="formState.name"
-      class="mb-4"
-      label="Name"
-      prepend-icon="mdi-rename-outline"
-      required
-      :rules="nameRules"
-      variant="outlined"
-    />
-    <v-file-input
-      v-model="formState.file"
-      accept=".zcos"
-      chips
-      :class="{ 'mb-4': !file }"
-      label="Experiment file"
-      required
-      :rules="fileRules"
-      variant="outlined"
-    />
-    <div
-      v-if="file"
-      class="file-info mb-8 ml-10"
-    >
-      <strong>File:</strong> {{ file }}
-    </div>
-    <v-textarea
-      v-model="formState.output"
-      class="mb-4"
-      label="Output object"
-      prepend-icon="mdi-code-brackets"
-      :rules="outputRules"
-      variant="outlined"
-    />
-    <v-textarea
-      v-model="formState.input"
-      label="Input object"
-      prepend-icon="mdi-code-json"
-      :rules="inputRules"
-      variant="outlined"
-    />
+    <v-container class="ma-0 pa-0">
+      <v-row
+        v-if="!experiment"
+        class="px-2"
+      >
+        <v-switch
+          v-model="formState.save"
+          color="primary"
+          inset
+          :label="$t('SaveExperiment')"
+        />
+      </v-row>
+      <v-row dense>
+        <v-col class="form-item">
+          <v-text-field
+            v-model="formState.name"
+            :label="$t('ExperimentName')"
+            prepend-icon="mdi-rename-outline"
+            required
+            :rules="nameRules"
+            variant="outlined"
+          />
+        </v-col>
+        <v-col class="form-item">
+          <v-file-input
+            v-model="formState.file"
+            accept=".zcos"
+            chips
+            :label="$t('ExperimentSchema')"
+            required
+            :rules="fileRules"
+            variant="outlined"
+          />
+          <div
+            v-if="file"
+            class="file-info ml-10"
+          >
+            <strong>File:</strong> {{ file }}
+          </div>
+        </v-col>
+      </v-row>
+      <v-tabs v-model="tab">
+        <v-tab value="individual">
+          {{ $t("ExperimentIndividualItems") }}
+        </v-tab>
+        <v-tab value="object">
+          {{ $t("ExperimentObjects") }}
+        </v-tab>
+      </v-tabs>
+      <v-window v-model="tab">
+        <v-window-item value="individual">
+          <v-row class="mt-2">
+            <v-col class="form-item">
+              <v-row
+                align="center"
+                justify="space-between"
+              >
+                <div class="text-h6">
+                  {{ $t("ExperimentOutputs") }}:
+                </div>
+                <v-btn
+                  class="icon-btn"
+                  color="success"
+                  density="compact"
+                  icon="mdi-plus-circle"
+                  variant="text"
+                  @click="addOutputItem"
+                />
+              </v-row>
+              <v-text-field
+                v-for="(_, idx) in formState.outputItems"
+                :key="idx"
+                v-model="formState.outputItems[idx]"
+                required
+                :rules="individualInputRules"
+                variant="outlined"
+                @update:model-value="onOutputItemsChange"
+              >
+                <template #append>
+                  <v-icon
+                    class="icon"
+                    color="red"
+                    @click="removeOutputItem(idx)"
+                  >
+                    mdi-minus-circle
+                  </v-icon>
+                </template>
+              </v-text-field>
+            </v-col>
+            <v-col class="form-item" />
+          </v-row>
+        </v-window-item>
+
+        <v-window-item value="object">
+          <v-row class="mt-2">
+            <v-col class="form-item">
+              <v-textarea
+                v-model="formState.output"
+                :label="$t('ExperimentOutput')"
+                prepend-icon="mdi-code-brackets"
+                :rules="outputRules"
+                variant="outlined"
+                @update:model-value="onOutputChange"
+              />
+            </v-col>
+            <v-col class="form-item">
+              <v-textarea
+                v-model="formState.input"
+                :label="$t('ExperimentContext')"
+                prepend-icon="mdi-code-json"
+                :rules="inputRules"
+                variant="outlined"
+              />
+            </v-col>
+          </v-row>
+        </v-window-item>
+      </v-window>
+    </v-container>
   </v-form>
 </template>
 
 <script setup>
+import { trans } from "laravel-vue-i18n";
 import { reactive, watch } from "vue";
 import { ref } from "vue";
 
+const tab = ref(null);
 const props = defineProps({
     loading: {
         type: Boolean,
@@ -63,10 +143,12 @@ const props = defineProps({
 
 const form = ref(null);
 const formState = reactive({
+    save: false,
     name: "",
     file: undefined,
     output: "[]",
     input: "{}",
+    outputItems: [""],
 });
 const file = ref("");
 
@@ -77,8 +159,45 @@ watch(props, () => {
         formState.output = output;
         formState.name = name;
         file.value = file_name;
+        onOutputChange();
     }
 });
+
+const onOutputChange = (_) => {
+    if (formState.output) {
+        const values = formState.output
+            .replace("[", "")
+            .replace("]", "")
+            .replaceAll('"', "")
+            .split(",");
+        formState.outputItems = values.map((value) => value.trim());
+    } else {
+        formState.outputItems = [""];
+    }
+};
+
+const onOutputItemsChange = (_) => {
+    let output = "[";
+    for (let i = 0; i < formState.outputItems.length; i++) {
+        if (i !== 0) {
+            output += ", ";
+        }
+        output += `"${formState.outputItems[i]}"`;
+    }
+    output += "]";
+    formState.output = output;
+};
+
+const removeOutputItem = (idx) => {
+    const items = [...formState.outputItems];
+    items.splice(idx, 1);
+    formState.outputItems = items;
+    onOutputItemsChange();
+};
+
+const addOutputItem = () => {
+    formState.outputItems = [...formState.outputItems, ""];
+};
 
 defineExpose({
     form,
@@ -86,24 +205,30 @@ defineExpose({
     file,
 });
 
-const nameRules = [(value) => !!value || "Name is required"];
+const nameRules = [
+    (value) => !formState.save || !!value || trans("ExperimentNameError"),
+];
 const fileRules = [
     (value) =>
         !value ||
         !!value.length ||
         !!file.value ||
-        "Experiment schema is required",
+        trans("ExperimentSchemaError"),
 ];
 const outputRules = [
-    (value) => isArrayString(value) || "Output is not a valid Array",
-    (value) => onlyStrings(value) || "Output must contain only strings",
-    (value) => containsUnique(value) || "Output must contain unique strings",
+    (value) => isArrayString(value) || trans("ExperimentOutputArrayError"),
+    (value) => onlyStrings(value) || trans("ExperimentOutputStringsError"),
+    (value) =>
+        containsUnique(value) || trans("ExperimentOutputUniqueStringError"),
 ];
 const inputRules = [
-    (value) => isJsonString(value) || "Input is not a valid JSON",
+    (value) => isJsonString(value) || trans("ExperimentContextError"),
+];
+
+const individualInputRules = [
     (value) =>
-        onlyNumbersAsValue(value) ||
-        "Input must contain only numbers as values",
+        formState.outputItems.filter((v) => v === value).length === 1 ||
+        trans("ExperimentOutputUniqueStringError"),
 ];
 
 const onlyUnique = (value, index, array) => {
@@ -137,14 +262,6 @@ const isArrayString = (arrayString) => {
     return false;
 };
 
-const onlyNumbersAsValue = (jsonString) => {
-    const o = JSON.parse(jsonString);
-    const values = Object.values(o);
-    const notNumber = values.find((item) => typeof item !== "number");
-
-    return notNumber === undefined;
-};
-
 const isJsonString = (jsonString) => {
     try {
         const o = JSON.parse(jsonString);
@@ -160,8 +277,37 @@ const isJsonString = (jsonString) => {
 };
 </script>
 
-<style scoped>
-.file-info {
-    margin-top: -16px;
+<style lang="scss" scoped>
+.form-item {
+    min-width: 300px;
+
+    @media (min-width: 600px) {
+        min-width: 380px;
+    }
+
+    :deep(.v-field__input) {
+        padding: 8px 16px;
+    }
+
+    .icon {
+        opacity: 100%;
+    }
+
+    .file-info {
+        margin-top: -16px;
+    }
+
+    .icon-btn {
+        height: 24px !important;
+        width: 24px !important;
+
+        :deep(v-btn__content) {
+            color: green;
+        }
+    }
+
+    .v-row {
+        margin: 0px;
+    }
 }
 </style>

@@ -6,6 +6,9 @@ services:
             dockerfile: docker/Dockerfile
         volumes:
             - "./storage/app/experiment_files:/var/lib/scilab-app/storage/app/experiment_files"
+        environment:
+            - DB_HOST=${DB_HOST}
+            - DB_PORT=${DB_PORT}
         restart: always
         ports:
             - 8000:8000

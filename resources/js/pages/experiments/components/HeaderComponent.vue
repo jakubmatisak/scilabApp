@@ -5,34 +5,39 @@
   >
     <v-btn
       v-if="backButton"
+      :density="width < 960 ? 'comfortable' : 'default'"
       icon
+      :size="width < 600 ? 'small' : 'default'"
       to="/experiments"
     >
       <v-icon>mdi-arrow-left</v-icon>
     </v-btn>
-    <v-toolbar-title class="text-h4">
+    <v-toolbar-title class="text-md-h4 text-sm-h5">
       {{ title }}
     </v-toolbar-title>
-    <v-spacer />
     <slot />
   </v-toolbar>
 </template>
 
 <script setup>
+import { useWindowSize } from "@vueuse/core";
+
 defineProps({
     title: {
         type: String,
-        required: true
+        required: true,
     },
     backButton: {
         type: Boolean,
-        default: false
-    }
+        default: false,
+    },
 });
+
+const { width } = useWindowSize();
 </script>
 
 <style scoped>
 .v-toolbar {
-  border-bottom: 1px solid black;
+    border-bottom: 1px solid black;
 }
 </style>

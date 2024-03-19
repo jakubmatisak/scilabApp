@@ -8,11 +8,15 @@
       :title="title"
     >
       <v-btn
+        :density="width < 960 ? 'comfortable' : 'default'"
         :disabled="isPending"
         icon
+        variant="tonal"
         @click="onSaveClicked"
       >
-        <v-icon>mdi-content-save</v-icon>
+        <v-icon :size="width < 600 ? 'small' : 'default'">
+          {{ isEditView ? "mdi-content-save" : "mdi-plus-circle" }}
+        </v-icon>
       </v-btn>
     </header-component>
     <template #loader="{ isActive }">
@@ -24,21 +28,23 @@
       />
     </template>
     <v-card-text class="py-8">
-      <div class="ma-auto w-50">
-        <create-form
-          ref="createFormRef"
-          :experiment="experiment"
+      <create-form
+        ref="createFormRef"
+        :experiment="experiment"
+        :loading="isPending"
+      />
+      <v-container>
+        <graph-component
+          :data="graphData"
           :loading="isPending"
         />
-      </div>
-      <v-container>
-        <graph-component :data="graphData" />
       </v-container>
     </v-card-text>
   </v-card>
 </template>
 
 <script setup>
+import { trans } from "laravel-vue-i18n";
 import { computed, onMounted, ref, watch } from "vue";
 import { useRoute } from "vue-router";
 import CreateForm from "./components/CreateForm.vue";
@@ -49,10 +55,14 @@ import {
     useExperimentSaveMutation,
 } from "@/api/queries/experimentQueries";
 import { useNotificationStore } from "@/stores/NotificationService";
+import { useWindowSize } from "@vueuse/core";
 
+const { width } = useWindowSize();
 const route = useRoute();
 const isEditView = ref(route.path.includes("edit"));
-const title = computed(() => (isEditView.value ? "Edit View" : "Create View"));
+const title = computed(() =>
+    isEditView.value ? trans("EditExperiment") : trans("CreateExperiment")
+);
 
 const createFormRef = ref(null);
 
@@ -87,7 +97,6 @@ const onSaveClicked = async () => {
     const { valid: isValid } = await createFormRef.value.form.validate();
     if (isValid) {
         try {
-            console.log(createFormRef);
             const { data } = await mutateAsync({
                 id: route.params.id,
                 name: createFormRef.value.formState.name,
@@ -96,11 +105,12 @@ const onSaveClicked = async () => {
                     : undefined,
                 context: createFormRef.value.formState.input,
                 output: createFormRef.value.formState.output,
+                save: createFormRef.value.formState.save,
             });
 
-            const snackbarMessage = `Experiment ${
-                isEditView.value ? "updated" : "created"
-            } successfully`;
+            const snackbarMessage = isEditView.value
+                ? trans("ExperimentEditSuccess")
+                : trans("ExperimentCreateSuccess");
             showSnackbar(snackbarMessage, "success");
 
             if (!isEditView.value) {
@@ -108,9 +118,9 @@ const onSaveClicked = async () => {
             }
             graphData.value = data.simulation;
         } catch (err) {
-            const snackbarMessage = `There was an error when ${
-                isEditView.value ? "updating" : "creating"
-            } Experiment`;
+            const snackbarMessage = isEditView.value
+                ? trans("ExperimentEditError")
+                : trans("ExperimentCreateError");
             showSnackbar(snackbarMessage, "error");
         }
     }
