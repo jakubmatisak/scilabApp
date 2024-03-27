@@ -34,7 +34,7 @@
           <v-list-item
             append-icon="mdi-delete"
             base-color="red"
-            title="Remove"
+            :title="$t('Remove')"
             value="remove"
             @click.stop="onRemoveClicked"
           />
@@ -50,7 +50,7 @@
       />
     </template>
     <v-card-text>
-      <v-container>
+      <v-container fluid>
         <div class="d-flex">
           <div class="text-md-h4 text-sm-h5">
             {{ data?.experiment?.name }}
@@ -69,7 +69,7 @@
           :loading="isPendingSimulation"
           :submit="handleSubmit"
         />
-        <v-container>
+        <v-container fluid>
           <graph-component
             :data="graphData"
             :loading="isPendingSimulation"

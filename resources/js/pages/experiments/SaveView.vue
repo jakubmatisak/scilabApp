@@ -33,7 +33,7 @@
         :experiment="experiment"
         :loading="isPending"
       />
-      <v-container>
+      <v-container fluid>
         <graph-component
           :data="graphData"
           :loading="isPending"

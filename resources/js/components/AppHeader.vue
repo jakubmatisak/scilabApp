@@ -12,6 +12,7 @@
       </v-app-bar-title>
     </template>
     <template #append>
+      <theme-toggle />
       <language-menu />
     </template>
   </v-app-bar>
@@ -19,6 +20,7 @@
 
 <script setup>
 import LanguageMenu from "./LanguageMenu.vue";
+import ThemeToggle from "./ThemeToggle.vue";
 
 const emit = defineEmits(["toggle"]);
 </script>

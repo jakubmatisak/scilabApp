@@ -1,7 +1,7 @@
 <template>
   <div>
-    <span class="text-md-h4 text-sm-h5">{{ $t("ExperimentResult") }}:</span>
-    <div class="experiment-graf">
+    <span class="text-md-h5 text-sm-h5">{{ $t("ExperimentResult") }}:</span>
+    <div class="experiment-graf mt-4">
       <apexchart
         :options="options"
         :series="dataSeries"

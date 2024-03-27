@@ -3,11 +3,9 @@
     <template #activator="{ props }">
       <v-btn
         color="primary"
-        variant="tonal"
+        icon="mdi-translate-variant"
         v-bind="props"
-      >
-        {{ currentLanguage.value }}
-      </v-btn>
+      />
     </template>
     <v-list>
       <v-list-item
@@ -24,18 +22,18 @@
 </template>
 
 <script setup>
-import { ref } from "vue";
 import { loadLanguageAsync } from "laravel-vue-i18n";
+import { useLocale } from "vuetify";
 
 const languages = [
     { value: "SK", label: "Slovenčina", i18n: "sk" },
     { value: "EN", label: "English", i18n: "en" },
 ];
 
-const currentLanguage = ref(languages[0]);
+const { current } = useLocale();
 
 const onLanguateSelected = (language) => {
-    currentLanguage.value = language;
     loadLanguageAsync(language.i18n);
+    current.value = language.i18n;
 };
 </script>

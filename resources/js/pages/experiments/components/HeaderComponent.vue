@@ -35,9 +35,3 @@ defineProps({
 
 const { width } = useWindowSize();
 </script>
-
-<style scoped>
-.v-toolbar {
-    border-bottom: 1px solid black;
-}
-</style>

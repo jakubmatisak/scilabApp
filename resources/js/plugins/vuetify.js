@@ -1,5 +1,6 @@
 import "vuetify/styles";
 import { createVuetify } from "vuetify";
+import { sk, en } from "vuetify/locale";
 import { md3 } from "vuetify/blueprints";
 import * as components from "vuetify/components";
 import * as directives from "vuetify/directives";
@@ -23,6 +24,11 @@ const vuetify = createVuetify({
         themes: {
             lightTheme,
         },
+    },
+    locale: {
+        locale: "sk",
+        fallback: "sk",
+        messages: { sk, en },
     },
 });
 
