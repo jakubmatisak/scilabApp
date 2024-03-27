@@ -241,6 +241,7 @@
                             "schema": {
                                 "required": [
                                     "file",
+                                    "name",
                                     "context",
                                     "output",
                                     "save"
@@ -251,13 +252,20 @@
                                         "type": "string",
                                         "format": "binary"
                                     },
+                                    "name": {
+                                        "description": "Name",
+                                        "type": "string",
+                                        "example": "Experiment"
+                                    },
                                     "context": {
                                         "description": "Context",
-                                        "type": "string"
+                                        "type": "string",
+                                        "example": "{\"time\": 15, \"H\": \"8*2^3\"}"
                                     },
                                     "output": {
                                         "description": "Output",
-                                        "type": "string"
+                                        "type": "string",
+                                        "example": "[\"time\", \"velocity\", \"height\"]"
                                     },
                                     "save": {
                                         "description": "Save",
@@ -330,6 +338,13 @@
                                                         "example": "The file field is required."
                                                     }
                                                 },
+                                                "name": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "type": "string",
+                                                        "example": "The name field is required."
+                                                    }
+                                                },
                                                 "context": {
                                                     "type": "array",
                                                     "items": {
@@ -346,6 +361,22 @@
                                                 }
                                             },
                                             "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Name is required when saving experiment",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "error_message": {
+                                            "type": "string",
+                                            "example": "Name is required when saving the experiment."
                                         }
                                     },
                                     "type": "object"
@@ -465,6 +496,186 @@
                     }
                 ]
             },
+            "post": {
+                "tags": [
+                    "Experiments"
+                ],
+                "summary": "Update existing experiment",
+                "description": "Updates experiment",
+                "operationId": "f4c8a099c510cc4a6ab8a162a78aa866",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID of the experiment",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "example": 1
+                    },
+                    {
+                        "name": "Accept",
+                        "in": "header",
+                        "description": "Authentication token",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "default": "application/json"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "properties": {
+                                    "file": {
+                                        "description": "Experiment file",
+                                        "type": "string",
+                                        "format": "binary"
+                                    },
+                                    "name": {
+                                        "description": "Name",
+                                        "type": "string",
+                                        "example": "Experiment"
+                                    },
+                                    "context": {
+                                        "description": "Context",
+                                        "type": "string",
+                                        "example": "{\"time\": 15, \"H\": \"8*2^3\"}"
+                                    },
+                                    "output": {
+                                        "description": "Output",
+                                        "type": "string",
+                                        "example": "[\"time\", \"velocity\", \"height\"]"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Experiment updated successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "simulation": {
+                                            "type": "array",
+                                            "items": {
+                                                "properties": {
+                                                    "time": {
+                                                        "type": "number"
+                                                    },
+                                                    "height": {
+                                                        "type": "number"
+                                                    },
+                                                    "velocity": {
+                                                        "type": "number"
+                                                    }
+                                                },
+                                                "type": "object"
+                                            },
+                                            "example": [
+                                                {
+                                                    "time": 0,
+                                                    "height": 80,
+                                                    "velocity": 0
+                                                },
+                                                {
+                                                    "time": 0.1,
+                                                    "height": 80,
+                                                    "velocity": 0.4801576
+                                                }
+                                            ]
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid input",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "errors": {
+                                            "properties": {
+                                                "name": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "type": "string",
+                                                        "example": "The name field must be a string."
+                                                    }
+                                                },
+                                                "context": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "type": "string",
+                                                        "example": "The context field must be a valid JSON string."
+                                                    }
+                                                },
+                                                "output": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "type": "string",
+                                                        "example": "The output field must be a valid JSON string."
+                                                    }
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Missing permissions",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "You don't have permission to edit this experiment."
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Experiment not found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "There is no experiment with that id."
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
             "delete": {
                 "tags": [
                     "Experiments"
@@ -494,10 +705,6 @@
                                         "message": {
                                             "type": "string",
                                             "example": "Experiment deleted successfully"
-                                        },
-                                        "success": {
-                                            "type": "boolean",
-                                            "example": true
                                         }
                                     },
                                     "type": "object"
@@ -514,10 +721,6 @@
                                         "message": {
                                             "type": "string",
                                             "example": "Invalid id."
-                                        },
-                                        "success": {
-                                            "type": "boolean",
-                                            "example": false
                                         }
                                     },
                                     "type": "object"
@@ -534,10 +737,146 @@
                                         "message": {
                                             "type": "string",
                                             "example": "There is no experiment with that id."
-                                        },
-                                        "success": {
-                                            "type": "boolean",
-                                            "example": false
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/experiments/{id}/simulate": {
+            "post": {
+                "tags": [
+                    "Experiments"
+                ],
+                "summary": "Simulate experiment",
+                "description": "Simulates already existing experiment",
+                "operationId": "c9fa7a200a0af8486fa6e85c9b944cb3",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID of the experiment",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "example": 1
+                    },
+                    {
+                        "name": "Accept",
+                        "in": "header",
+                        "description": "Authentication token",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "default": "application/json"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "required": [
+                                    "context"
+                                ],
+                                "properties": {
+                                    "context": {
+                                        "description": "Context",
+                                        "type": "string",
+                                        "example": "{\"time\": 15, \"H\": \"8*2^3\"}"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Experiment created successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "simulation": {
+                                            "type": "array",
+                                            "items": {
+                                                "properties": {
+                                                    "time": {
+                                                        "type": "number"
+                                                    },
+                                                    "height": {
+                                                        "type": "number"
+                                                    },
+                                                    "velocity": {
+                                                        "type": "number"
+                                                    }
+                                                },
+                                                "type": "object"
+                                            },
+                                            "example": [
+                                                {
+                                                    "time": 0,
+                                                    "height": 80,
+                                                    "velocity": 0
+                                                },
+                                                {
+                                                    "time": 0.1,
+                                                    "height": 80,
+                                                    "velocity": 0.4801576
+                                                }
+                                            ]
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid input",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "errors": {
+                                            "properties": {
+                                                "context": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "type": "string",
+                                                        "example": "The context field is required."
+                                                    }
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Experiment not found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "There is no experiment with that id."
                                         }
                                     },
                                     "type": "object"

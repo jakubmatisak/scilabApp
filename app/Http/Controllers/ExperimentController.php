@@ -25,28 +25,28 @@ use App\Services\ExperimentService;
 class ExperimentController extends Controller
 {
     /**
-     * @OA\Get(
-     *  path="/api/experiments",
-     *  tags={"Experiments"},
-     *  summary="Get a list of experiments",
-     *  description="Returns all experiments",
-     *  security={{"bearerAuth": {}}},
-     *  @OA\Response(
-     *      response=200,
-     *      description="Successful operation",
-     *      @OA\JsonContent(
-     *          @OA\Property(
-     *              property="experiments",
-     *              type="array",
-     *              @OA\Items(
-     *                  @OA\Property(property="id", type="integer", example=1),
-     *                  @OA\Property(property="file_name", type="string", example="experiment_files/1622619815_1619954846_tcn.zcos"),
-     *                  @OA\Property(property="context", type="string", example="{}"),
-     *                  @OA\Property(property="output", type="string", example="{}"),
-     *                  @OA\Property(property="save", type="integer", example=0),
-     *                  @OA\Property(property="created_by", type="integer", example=1),
-     *                  @OA\Property(property="created_at", type="string", format="date-time"),
-     *                  @OA\Property(property="updated_at", type="string", format="date-time")
+     *  @OA\Get(
+     *      path="/api/experiments",
+     *      tags={"Experiments"},
+     *      summary="Get a list of experiments",
+     *      description="Returns all experiments",
+     *      security={{"bearerAuth": {}}},
+     *      @OA\Response(
+     *          response=200,
+     *          description="Successful operation",
+     *          @OA\JsonContent(
+     *              @OA\Property(
+     *                  property="experiments",
+     *                  type="array",
+     *                  @OA\Items(
+     *                      @OA\Property(property="id", type="integer", example=1),
+     *                      @OA\Property(property="file_name", type="string", example="experiment_files/1622619815_1619954846_tcn.zcos"),
+     *                      @OA\Property(property="context", type="string", example="{}"),
+     *                      @OA\Property(property="output", type="string", example="{}"),
+     *                      @OA\Property(property="save", type="integer", example=0),
+     *                      @OA\Property(property="created_by", type="integer", example=1),
+     *                      @OA\Property(property="created_at", type="string", format="date-time"),
+     *                      @OA\Property(property="updated_at", type="string", format="date-time")
      *                  )
      *              )
      *          )
@@ -80,27 +80,28 @@ class ExperimentController extends Controller
     }
 
     /**
-     * @OA\Post(
-     *     path="/api/experiments",
-     *     tags={"Experiments"},
-     *     summary="Create a new experiment",
-     *     description="Stores a new experiment",
-     *     security={{"bearerAuth": {}}},
-     *     @OA\RequestBody(
+     *  @OA\Post(
+     *      path="/api/experiments",
+     *      tags={"Experiments"},
+     *      summary="Create a new experiment",
+     *      description="Stores a new experiment",
+     *      security={{"bearerAuth": {}}},
+     *      @OA\RequestBody(
      *         required=true,
      *         @OA\MediaType(
      *              mediaType="multipart/form-data",
      *              @OA\Schema(
      *                  type="object",
-     *                  required={"file", "context", "output", "save"},
+     *                  required={"file", "name", "context", "output", "save"},
      *                  @OA\Property(property="file", type="string", format="binary", description="Experiment file"),
-     *                  @OA\Property(property="context", type="string", description="Context"),
-     *                  @OA\Property(property="output", type="string", description="Output"),
+     *                  @OA\Property(property="name", type="string", description="Name", example="Experiment"),
+     *                  @OA\Property(property="context", type="string", description="Context", example="{""time"": 15, ""H"": ""8*2^3""}"),
+     *                  @OA\Property(property="output", type="string", description="Output", example="[""time"", ""velocity"", ""height""]"),
      *                  @OA\Property(property="save", type="integer", description="Save", enum={0, 1})
      *              ),
      *         ),
-     *     ),
-     *     @OA\Parameter(
+     *      ),
+     *      @OA\Parameter(
      *         name="Accept",
      *         in="header",
      *         required=true,
@@ -109,8 +110,8 @@ class ExperimentController extends Controller
      *             type="string",
      *             default="application/json"
      *         )
-     *     ),
-     *     @OA\Response(
+     *      ),
+     *      @OA\Response(
      *          response=201,
      *          description="Experiment created successfully",
      *          @OA\JsonContent(
@@ -139,8 +140,8 @@ class ExperimentController extends Controller
      *                  }
      *              )
      *          )
-     *     ),
-     *     @OA\Response(
+     *      ),
+     *      @OA\Response(
      *          response="400",
      *          description="Invalid input",
      *          @OA\JsonContent(
@@ -154,6 +155,14 @@ class ExperimentController extends Controller
      *                      @OA\Items(
      *                          type="string",
      *                          example="The file field is required."
+     *                      )
+     *                  ),
+     *                  @OA\Property(
+     *                      property="name",
+     *                      type="array",
+     *                      @OA\Items(
+     *                          type="string",
+     *                          example="The name field is required."
      *                      )
      *                  ),
      *                  @OA\Property(
@@ -174,7 +183,18 @@ class ExperimentController extends Controller
      *                  ),
      *              ),
      *          )
-     *     )
+     *      ),
+     *      @OA\Response(
+     *          response=404,
+     *          description="Name is required when saving experiment",
+     *          @OA\JsonContent(
+     *              @OA\Property(
+     *                  property="error_message",
+     *                  type="string",
+     *                  example="Name is required when saving the experiment."
+     *              )
+     *          )
+     *      )
      * )
      */
     public function store(Request $request)
@@ -227,7 +247,7 @@ class ExperimentController extends Controller
     }
 
     /**
-     * @OA\Get(
+     *  @OA\Get(
      *      path="/api/experiments/{id}",
      *      tags={"Experiments"},
      *      summary="Get an experiment by ID",
@@ -293,7 +313,7 @@ class ExperimentController extends Controller
 
             return response()->json(["experiment"=>$experiment], 200);
         } catch(\Exception $_){
-            return response()->json(["message"=>"There is no experiment with that id."], 400);
+            return response()->json(["message"=>"There is no experiment with that id."], 404);
         }
     }
 
@@ -312,7 +332,7 @@ class ExperimentController extends Controller
 
             return Storage::response($filePath);
         } catch(\Exception $_){
-            return response()->json(["message"=>"There is no experiment with that id."], 400);
+            return response()->json(["message"=>"There is no experiment with that id."], 404);
         }
     }
 
@@ -325,7 +345,132 @@ class ExperimentController extends Controller
     }
 
     /**
-     * Update the specified resource in storage.
+     *  @OA\Post(
+     *      path="/api/experiments/{id}",
+     *      tags={"Experiments"},
+     *      summary="Update existing experiment",
+     *      description="Updates experiment",
+     *      security={{"bearerAuth": {}}},
+     *      @OA\Parameter(
+     *          name="id",
+     *          in="path",
+     *          required=true,
+     *          description="ID of the experiment",
+     *          @OA\Schema(type="string"),
+     *          example=1
+     *      ),
+     *      @OA\RequestBody(
+     *         required=true,
+     *         @OA\MediaType(
+     *              mediaType="multipart/form-data",
+     *              @OA\Schema(
+     *                  type="object",
+     *                  @OA\Property(property="file", type="string", format="binary", description="Experiment file"),
+     *                  @OA\Property(property="name", type="string", description="Name", example="Experiment"),
+     *                  @OA\Property(property="context", type="string", description="Context", example="{""time"": 15, ""H"": ""8*2^3""}"),
+     *                  @OA\Property(property="output", type="string", description="Output", example="[""time"", ""velocity"", ""height""]"),
+     *              ),
+     *         ),
+     *      ),
+     *      @OA\Parameter(
+     *         name="Accept",
+     *         in="header",
+     *         required=true,
+     *         description="Authentication token",
+     *         @OA\Schema(
+     *             type="string",
+     *             default="application/json"
+     *         )
+     *      ),
+     *      @OA\Response(
+     *          response=201,
+     *          description="Experiment updated successfully",
+     *          @OA\JsonContent(
+     *              type="object",
+     *              @OA\Property(
+     *                  property="simulation",
+     *                  type="array",
+     *                  @OA\Items(
+     *                      type="object",
+     *                      @OA\Property(
+     *                          property="time",
+     *                          type="number",
+     *                      ),
+     *                      @OA\Property(
+     *                          property="height",
+     *                          type="number",
+     *                      ),
+     *                      @OA\Property(
+     *                          property="velocity",
+     *                          type="number",
+     *                      ),
+     *                  ),
+     *                  example={
+     *                      {"time": 0.0, "height": 80.0, "velocity": 0.0},
+     *                      {"time": 0.1, "height": 80.0, "velocity": 0.4801576}
+     *                  }
+     *              )
+     *          )
+     *      ),
+     *      @OA\Response(
+     *          response="400",
+     *          description="Invalid input",
+     *          @OA\JsonContent(
+     *              type="object",
+     *              @OA\Property(
+     *                  property="errors",
+     *                  type="object",
+     *                  @OA\Property(
+     *                      property="name",
+     *                      type="array",
+     *                      @OA\Items(
+     *                          type="string",
+     *                          example="The name field must be a string."
+     *                      )
+     *                  ),
+     *                  @OA\Property(
+     *                      property="context",
+     *                      type="array",
+     *                      @OA\Items(
+     *                          type="string",
+     *                          example="The context field must be a valid JSON string."
+     *                      )
+     *                  ),
+     *                  @OA\Property(
+     *                      property="output",
+     *                      type="array",
+     *                      @OA\Items(
+     *                          type="string",
+     *                          example="The output field must be a valid JSON string."
+     *                      )
+     *                  ),
+     *              ),
+     *          )
+     *      ),
+     *      @OA\Response(
+     *          response="403",
+     *          description="Missing permissions",
+     *          @OA\JsonContent(
+     *              @OA\Property(
+     *                  property="message",
+     *                  type="string",
+     *                  example="You don't have permission to edit this experiment."
+     *              ),
+     *          )
+     *      ),
+     *      @OA\Response(
+     *          response=404,
+     *          description="Experiment not found",
+     *          @OA\JsonContent(
+     *              type="object",
+     *              @OA\Property(
+     *                  property="message",
+     *                  type="string",
+     *                  example="There is no experiment with that id."
+     *              )
+     *          )
+     *      )
+     * )
      */
     public function update(Request $request, string $id)
     {
@@ -388,8 +533,7 @@ class ExperimentController extends Controller
     }
 
     /**
-     * @OA\Delete(
-     *
+     *  @OA\Delete(
      *      path="/api/experiments/{id}",
      *      tags={"Experiments"},
      *      summary="Delete an experiment by ID",
@@ -411,11 +555,6 @@ class ExperimentController extends Controller
      *                  property="message",
      *                  type="string",
      *                  example="Experiment deleted successfully"
-     *              ),
-     *              @OA\Property(
-     *                  property="success",
-     *                  type="boolean",
-     *                  example=true
      *              )
      *          )
      *      ),
@@ -427,11 +566,6 @@ class ExperimentController extends Controller
      *                  property="message",
      *                  type="string",
      *                  example="Invalid id."
-     *              ),
-     *              @OA\Property(
-     *                  property="success",
-     *                  type="boolean",
-     *                  example=false
      *              )
      *          )
      *      ),
@@ -443,11 +577,6 @@ class ExperimentController extends Controller
      *                  property="message",
      *                  type="string",
      *                  example="There is no experiment with that id."
-     *              ),
-     *              @OA\Property(
-     *                  property="success",
-     *                  type="boolean",
-     *                  example=false
      *              )
      *          )
      *      )
@@ -456,7 +585,7 @@ class ExperimentController extends Controller
     public function destroy(string $id)
     {
         if(!$id){
-            return response()->json(["message"=>"Invalid id.", 'success' => false], 400);
+            return response()->json(["message"=>"Invalid id."], 400);
         }
         try{
             $experiment = Experiment::findOrFail($id);
@@ -470,15 +599,113 @@ class ExperimentController extends Controller
                 return response()->json(["message"=>"Error - {$exception->getMessage()}"], 500);
             }
 
-            return response()->json(['message' => 'Experiment deleted successfully.', 'success' => true], 200);
+            return response()->json(['message' => 'Experiment deleted successfully.'], 200);
         } catch(\Exception $_){
-            return response()->json(["message"=>"There is no experiment with that id.", 'success' => false], 404);
+            return response()->json(["message"=>"There is no experiment with that id."], 404);
         }
     }
 
+    /**
+     *  @OA\Post(
+     *      path="/api/experiments/{id}/simulate",
+     *      tags={"Experiments"},
+     *      summary="Simulate experiment",
+     *      description="Simulates already existing experiment",
+     *      security={{"bearerAuth": {}}},
+     *      @OA\Parameter(
+     *          name="id",
+     *          in="path",
+     *          required=true,
+     *          description="ID of the experiment",
+     *          @OA\Schema(type="string"),
+     *          example=1
+     *      ),
+     *      @OA\RequestBody(
+     *         required=true,
+     *         @OA\MediaType(
+     *              mediaType="multipart/form-data",
+     *              @OA\Schema(
+     *                  type="object",
+     *                  required={"context"},
+     *                  @OA\Property(property="context", type="string", description="Context", example="{""time"": 15, ""H"": ""8*2^3""}"),
+     *              ),
+     *         ),
+     *      ),
+     *      @OA\Parameter(
+     *         name="Accept",
+     *         in="header",
+     *         required=true,
+     *         description="Authentication token",
+     *         @OA\Schema(
+     *             type="string",
+     *             default="application/json"
+     *         )
+     *      ),
+     *      @OA\Response(
+     *          response=201,
+     *          description="Experiment created successfully",
+     *          @OA\JsonContent(
+     *              type="object",
+     *              @OA\Property(
+     *                  property="simulation",
+     *                  type="array",
+     *                  @OA\Items(
+     *                      type="object",
+     *                      @OA\Property(
+     *                          property="time",
+     *                          type="number",
+     *                      ),
+     *                      @OA\Property(
+     *                          property="height",
+     *                          type="number",
+     *                      ),
+     *                      @OA\Property(
+     *                          property="velocity",
+     *                          type="number",
+     *                      ),
+     *                  ),
+     *                  example={
+     *                      {"time": 0.0, "height": 80.0, "velocity": 0.0},
+     *                      {"time": 0.1, "height": 80.0, "velocity": 0.4801576}
+     *                  }
+     *              )
+     *          )
+     *      ),
+     *      @OA\Response(
+     *          response="400",
+     *          description="Invalid input",
+     *          @OA\JsonContent(
+     *              type="object",
+     *              @OA\Property(
+     *                  property="errors",
+     *                  type="object",
+     *                  @OA\Property(
+     *                      property="context",
+     *                      type="array",
+     *                      @OA\Items(
+     *                          type="string",
+     *                          example="The context field is required."
+     *                      )
+     *                  ),
+     *              ),
+     *          )
+     *      ),
+     *      @OA\Response(
+     *          response=404,
+     *          description="Experiment not found",
+     *          @OA\JsonContent(
+     *              @OA\Property(
+     *                  property="message",
+     *                  type="string",
+     *                  example="There is no experiment with that id."
+     *              )
+     *          )
+     *      )
+     * )
+     */
     public function simulate(Request $request, string $id) {
         if(!$id){
-            return response()->json(["message"=>"Invalid id.", 'success' => false], 400);
+            return response()->json(["message"=>"Invalid id."], 400);
         }
 
         $validator = Validator::make($request->all(), [
@@ -502,7 +729,7 @@ class ExperimentController extends Controller
 
             return response()->json(["simulation"=>$result_array], 201);
         } catch(\Exception $_){
-            return response()->json(["message"=>"There is no experiment with that id."], 400);
+            return response()->json(["message"=>"There is no experiment with that id."], 404);
         }
     }
 }
