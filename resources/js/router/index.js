@@ -4,7 +4,7 @@ import MainLayout from "@/layouts/MainLayout.vue";
 import LoginView from "@/pages/auth/LoginView.vue";
 import RegisterView from "@/pages/auth/RegisterView.vue";
 import ExperimentListView from "@/pages/experiments/ExperimentListView.vue";
-import ExperimentSaveView from "@/pages/experiments/SaveView";
+import ExperimentSaveView from "@/pages/experiments/save/SaveView";
 import ExperimentDetailView from "@/pages/experiments/DetailView";
 import { authGuard } from "./Guards/AuthGuard";
 

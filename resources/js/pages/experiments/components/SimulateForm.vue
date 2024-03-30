@@ -29,6 +29,7 @@
 import { useWindowSize } from "@vueuse/core";
 import { trans } from "laravel-vue-i18n";
 import { ref, watch } from "vue";
+import { isJsonString } from "@/utils/formRules";
 
 const props = defineProps({
     submit: {
@@ -58,20 +59,6 @@ watch(props, (newVal, oldVal) => {
 const inputRules = [
     (value) => isJsonString(value) || trans("ExperimentContextError"),
 ];
-
-const isJsonString = (jsonString) => {
-    try {
-        const o = JSON.parse(jsonString);
-
-        if (o && typeof o === "object") {
-            return true;
-        }
-    } catch (e) {
-        /* empty */
-    }
-
-    return false;
-};
 
 const onSubmit = () => {
     props.submit(experimentInput.value);

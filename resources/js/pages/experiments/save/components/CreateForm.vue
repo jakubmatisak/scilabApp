@@ -58,46 +58,14 @@
       <v-window v-model="tab">
         <v-window-item value="individual">
           <v-row class="mt-2">
-            <v-col class="form-item">
-              <v-row
-                align="center"
-                class="pl-10"
-                justify="space-between"
-              >
-                <div class="text-h6">
-                  {{ $t("ExperimentOutputs") }}:
-                </div>
-                <v-btn
-                  class="icon-btn"
-                  color="success"
-                  density="compact"
-                  icon="mdi-plus-circle"
-                  variant="text"
-                  @click="addOutputItem"
-                />
-              </v-row>
-              <v-text-field
-                v-for="(_, idx) in formState.outputItems"
-                :key="idx"
-                v-model="formState.outputItems[idx]"
-                class="ml-10"
-                required
-                :rules="individualInputRules"
-                variant="outlined"
-                @update:model-value="onOutputItemsChange"
-              >
-                <template #append>
-                  <v-icon
-                    class="icon"
-                    color="red"
-                    @click="removeOutputItem(idx)"
-                  >
-                    mdi-minus-circle
-                  </v-icon>
-                </template>
-              </v-text-field>
-            </v-col>
-            <v-col class="form-item" />
+            <output-items
+              :form-state="formState"
+              @output-change="changeOutputItems"
+            />
+            <input-items
+              :form-state="formState"
+              @input-change="changeInputItems"
+            />
           </v-row>
         </v-window-item>
 
@@ -120,6 +88,7 @@
                 prepend-icon="mdi-code-json"
                 :rules="inputRules"
                 variant="outlined"
+                @update:model-value="onInputChange"
               />
             </v-col>
           </v-row>
@@ -131,8 +100,16 @@
 
 <script setup>
 import { trans } from "laravel-vue-i18n";
-import { reactive, watch } from "vue";
-import { ref } from "vue";
+import { ref, reactive, watch } from "vue";
+import {
+    arrayContainsUniqueItems,
+    onlyStrings,
+    isArrayString,
+    isJsonString,
+    objectContainsUniqueKeys,
+} from "@/utils/formRules";
+import OutputItems from "./OutputItems.vue";
+import InputItems from "./InputItems.vue";
 
 const tab = ref(null);
 const props = defineProps({
@@ -154,6 +131,7 @@ const formState = reactive({
     output: "[]",
     input: "{}",
     outputItems: [""],
+    inputItems: [{ key: "", value: "" }],
 });
 const file = ref("");
 
@@ -165,43 +143,51 @@ watch(props, () => {
         formState.name = name;
         file.value = file_name;
         onOutputChange();
+        onInputChange();
     }
 });
 
+const changeOutputItems = (output) => {
+    formState.output = output;
+    onOutputChange();
+};
+
+const changeInputItems = (input) => {
+    formState.input = input;
+    onInputChange();
+};
+
 const onOutputChange = (_) => {
-    if (formState.output) {
-        const values = formState.output
-            .replace("[", "")
-            .replace("]", "")
-            .replaceAll('"', "")
-            .split(",");
-        formState.outputItems = values.map((value) => value.trim());
-    } else {
+    try {
+        const outputArray = JSON.parse(formState.output);
+
+        if (
+            outputArray &&
+            typeof outputArray === "object" &&
+            Array.isArray(outputArray)
+        ) {
+            formState.outputItems = outputArray;
+        }
+    } catch (e) {
         formState.outputItems = [""];
     }
 };
 
-const onOutputItemsChange = (_) => {
-    let output = "[";
-    for (let i = 0; i < formState.outputItems.length; i++) {
-        if (i !== 0) {
-            output += ", ";
+const onInputChange = (_) => {
+    try {
+        const inputObject = JSON.parse(formState.input);
+        const keys = Object.keys(inputObject);
+        const values = Object.values(inputObject);
+
+        const inputItems = [];
+        for (let i = 0; i < keys.length; i++) {
+            inputItems.push({ key: keys[i], value: values[i] });
         }
-        output += `"${formState.outputItems[i]}"`;
+
+        formState.inputItems = inputItems;
+    } catch (e) {
+        formState.inputItems = [{ key: "", value: "" }];
     }
-    output += "]";
-    formState.output = output;
-};
-
-const removeOutputItem = (idx) => {
-    const items = [...formState.outputItems];
-    items.splice(idx, 1);
-    formState.outputItems = items;
-    onOutputItemsChange();
-};
-
-const addOutputItem = () => {
-    formState.outputItems = [...formState.outputItems, ""];
 };
 
 defineExpose({
@@ -224,65 +210,18 @@ const outputRules = [
     (value) => isArrayString(value) || trans("ExperimentOutputArrayError"),
     (value) => onlyStrings(value) || trans("ExperimentOutputStringsError"),
     (value) =>
-        containsUnique(value) || trans("ExperimentOutputUniqueStringError"),
+        arrayContainsUniqueItems(value) ||
+        trans("ExperimentOutputUniqueStringError"),
 ];
 const inputRules = [
     (value) => isJsonString(value) || trans("ExperimentContextError"),
-];
-
-const individualInputRules = [
     (value) =>
-        formState.outputItems.filter((v) => v === value).length === 1 ||
-        trans("ExperimentOutputUniqueStringError"),
+        objectContainsUniqueKeys(value) ||
+        trans("ExperimentInputUniqueKeyError"),
 ];
-
-const onlyUnique = (value, index, array) => {
-    return array.indexOf(value) === index;
-};
-
-const containsUnique = (arrayString) => {
-    const array = JSON.parse(arrayString);
-    const uniqueArray = array.filter(onlyUnique);
-    return uniqueArray.length === array.length;
-};
-
-const onlyStrings = (arrayString) => {
-    const array = JSON.parse(arrayString);
-    const notString = array.find((item) => typeof item !== "string");
-
-    return !notString;
-};
-
-const isArrayString = (arrayString) => {
-    try {
-        const o = JSON.parse(arrayString);
-
-        if (o && typeof o === "object" && Array.isArray(o)) {
-            return true;
-        }
-    } catch (e) {
-        /* empty */
-    }
-
-    return false;
-};
-
-const isJsonString = (jsonString) => {
-    try {
-        const o = JSON.parse(jsonString);
-
-        if (o && typeof o === "object") {
-            return true;
-        }
-    } catch (e) {
-        /* empty */
-    }
-
-    return false;
-};
 </script>
 
-<style lang="scss" scoped>
+<style lang="scss">
 .form-item {
     min-width: 300px;
 

@@ -28,6 +28,7 @@
     "ExperimentOutputArrayError": "Výstup nie je validné pole",
     "ExperimentOutputStringsError": "Výstup musí obsahovať iba text",
     "ExperimentOutputUniqueStringError": "Výstup musí obsahovať unikátne texty",
+    "ExperimentInputUniqueKeyError": "Kľúče vstupu musia obsahovať unikátne texty",
     "ExperimentContextError": "Vstup nie je validný JSON",
     "ExperimentResult": "Výsledok Experimentu",
     "GraphNoData": "Žiadne dáta do grafu",
@@ -42,5 +43,8 @@
     "ExperimentEditError": "Nastala chyba pri upravovaní experimentu",
     "ExperimentIndividualItems": "Samostatné položky",
     "ExperimentObjects": "Objekty",
-    "ExperimentOutputs": "Výstupy"
+    "ExperimentOutputs": "Výstupy",
+    "ExperimentInputs": "Vstupy",
+    "Key": "Kľúč",
+    "Value": "Hodnota"
 }
