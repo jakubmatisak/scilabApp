@@ -29,6 +29,7 @@
     "ExperimentOutputStringsError": "Výstup musí obsahovať iba text",
     "ExperimentOutputUniqueStringError": "Výstup musí obsahovať unikátne texty",
     "ExperimentInputUniqueKeyError": "Kľúče vstupu musia obsahovať unikátne texty",
+    "ExperimentInputValueError": "Kľúče vstupu môžu obsahovať iba znaky a-z A-Z 0-9 () [] {} , . ; : + - * / \\ ^ ' \"",
     "ExperimentContextError": "Vstup nie je validný JSON",
     "ExperimentResult": "Výsledok Experimentu",
     "GraphNoData": "Žiadne dáta do grafu",

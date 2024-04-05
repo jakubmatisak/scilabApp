@@ -5,7 +5,7 @@
       class="pl-10"
       justify="space-between"
     >
-      <div class="text-h6">
+      <div class="mb-4 text-h6">
         {{ $t("ExperimentOutputs") }}:
       </div>
       <v-btn
@@ -43,6 +43,7 @@
 <script setup>
 import { trans } from "laravel-vue-i18n";
 import { ref, watch } from "vue";
+import { escapeCharacters } from "../utils/escapeUtils";
 
 const outputItems = ref([""]);
 const emit = defineEmits(["output-change"]);
@@ -69,18 +70,10 @@ const onOutputItemsChange = (_) => {
         if (i !== 0) {
             output += ", ";
         }
-        output += `"${escapeQuotes(outputItems.value[i])}"`;
+        output += `"${escapeCharacters(outputItems.value[i])}"`;
     }
     output += "]";
     emit("output-change", output);
-};
-
-const escapeQuotes = (string) => {
-    if (typeof string === "string") {
-        return string.replaceAll('"', '\\"');
-    }
-
-    return string;
 };
 
 const removeOutputItem = (idx) => {

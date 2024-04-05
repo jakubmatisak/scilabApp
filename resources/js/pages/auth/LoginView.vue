@@ -1,52 +1,60 @@
 <template>
-  <v-card class="w-50">
-    <v-card-title class="bg-primary">
-      {{ $t("LoginTitle") }}
-    </v-card-title>
-    <v-card-text class="ma-0 pa-0">
-      <v-container>
-        <v-form
-          ref="form"
-          v-model="valid"
-          @submit.prevent="onSubmit"
-        >
-          <v-text-field
-            v-model="formState.email"
-            :label="$t('Email')"
-            name="email"
-            prepend-icon="mdi-account"
-            :rules="emailRules"
-            type="text"
-          />
-          <v-text-field
-            id="password"
-            v-model="formState.password"
-            :label="$t('Password')"
-            name="password"
-            prepend-icon="mdi-lock"
-            :rules="passwordRules"
-            type="password"
-          />
-          <div class="d-flex flex-row justify-end">
-            <v-btn
-              class="mr-4"
-              variant="outlined"
-              @click="onCreateAccountPressed"
-            >
-              {{ $t("CreateAccount") }}
-            </v-btn>
-            <v-btn
-              :loading="isLoading"
-              type="submit"
-              variant="elevated"
-            >
-              {{ $t("LoginBtn") }}
-            </v-btn>
-          </div>
-        </v-form>
-      </v-container>
-    </v-card-text>
-  </v-card>
+  <v-container class="card-container">
+    <v-card>
+      <v-card-title class="bg-primary">
+        {{ $t("LoginTitle") }}
+      </v-card-title>
+      <v-card-text class="ma-0 pa-0">
+        <v-container>
+          <v-form
+            ref="form"
+            v-model="valid"
+            @submit.prevent="onSubmit"
+          >
+            <v-text-field
+              v-model="formState.email"
+              :label="$t('Email')"
+              name="email"
+              prepend-icon="mdi-account"
+              :rules="emailRules"
+              type="text"
+            />
+            <v-text-field
+              id="password"
+              v-model="formState.password"
+              :label="$t('Password')"
+              name="password"
+              prepend-icon="mdi-lock"
+              :rules="passwordRules"
+              type="password"
+            />
+            <v-row justify="end">
+              <v-spacer />
+              <v-col class="no-grow pb-0">
+                <v-btn
+                  :size="width < 600 ? 'small' : 'default'"
+                  variant="outlined"
+                  @click="onCreateAccountPressed"
+                >
+                  {{ $t("CreateAccount") }}
+                </v-btn>
+              </v-col>
+              <v-col class="no-grow">
+                <v-btn
+                  :loading="isLoading"
+                  :size="width < 600 ? 'small' : 'default'"
+                  type="submit"
+                  variant="elevated"
+                >
+                  {{ $t("LoginBtn") }}
+                </v-btn>
+              </v-col>
+            </v-row>
+          </v-form>
+        </v-container>
+      </v-card-text>
+    </v-card>
+  </v-container>
 </template>
 
 <script setup>
@@ -55,7 +63,9 @@ import { useRouter } from "vue-router";
 import { useSignInMutation } from "@/api/queries/authQueries";
 import { useAuthStore } from "@/stores/Auth";
 import { useNotificationStore } from "@/stores/NotificationService";
+import { useWindowSize } from "@vueuse/core";
 
+const { width } = useWindowSize();
 const router = useRouter();
 const { showSnackbar } = useNotificationStore();
 
@@ -96,3 +106,13 @@ const onCreateAccountPressed = () => {
     router.push("/register");
 };
 </script>
+
+<style scoped lang="scss">
+.card-container {
+    max-width: 900px;
+
+    .no-grow {
+        flex-grow: 0;
+    }
+}
+</style>

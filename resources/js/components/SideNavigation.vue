@@ -1,8 +1,5 @@
 <template>
-  <v-navigation-drawer
-    v-model="isDrawerOpen"
-    theme="dark"
-  >
+  <v-navigation-drawer v-model="isDrawerOpen">
     <v-list>
       <v-list-item
         :subtitle="currentLoggedUser?.email || 'Unknown Email'"

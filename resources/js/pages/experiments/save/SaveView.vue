@@ -71,6 +71,7 @@ const {
     data: experimentData,
     mutateAsync: loadExperiment,
     isPending: isLoadingExperiment,
+    reset,
 } = useExperimentDetailMutation();
 const { showSnackbar } = useNotificationStore();
 
@@ -88,10 +89,22 @@ onMounted(() => {
 watch(route, () => {
     createFormRef.value.form.reset();
     createFormRef.value.file = "";
+    reset();
+    resetFormDefaultValues();
     if (route.params.id) {
         loadExperiment(route.params.id);
     }
 });
+
+const resetFormDefaultValues = () => {
+    createFormRef.value.formState.save = false;
+    createFormRef.value.formState.name = "";
+    createFormRef.value.formState.file = undefined;
+    createFormRef.value.formState.output = "[]";
+    createFormRef.value.formState.input = "{}";
+    createFormRef.value.formState.outputItems = [""];
+    createFormRef.value.formState.inputItems = [{ key: "", value: "" }];
+};
 
 const onSaveClicked = async () => {
     const { valid: isValid } = await createFormRef.value.form.validate();

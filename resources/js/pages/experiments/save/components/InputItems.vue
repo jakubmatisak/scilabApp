@@ -2,10 +2,10 @@
   <v-col class="form-item">
     <v-row
       align="center"
-      class="pl-8"
+      class="pl-10"
       justify="space-between"
     >
-      <div class="text-h6">
+      <div class="mb-4 text-h6">
         {{ $t("ExperimentInputs") }}:
       </div>
       <v-btn
@@ -21,7 +21,7 @@
       v-for="(_, idx) in inputItems"
       :key="idx"
       align="center"
-      class="pl-8"
+      class="pl-10"
       justify="center"
     >
       <v-col class="pa-0">
@@ -39,6 +39,7 @@
           v-model="inputItems[idx].value"
           :label="$t('Value')"
           required
+          :rules="individualInputValueRules"
           variant="outlined"
           @update:model-value="onInputItemsChange"
         />
@@ -58,6 +59,8 @@
 <script setup>
 import { trans } from "laravel-vue-i18n";
 import { ref, watch } from "vue";
+import { isMatlabVectorCharacters } from "@/utils/formRules";
+import { escapeCharacters } from "../utils/escapeUtils";
 
 const inputItems = ref([{ key: "", value: "" }]);
 const emit = defineEmits(["input-change"]);
@@ -84,20 +87,12 @@ const onInputItemsChange = (_) => {
         if (i !== 0) {
             input += ", ";
         }
-        input += `"${escapeQuotes(inputItems.value[i].key)}": "${escapeQuotes(
-            inputItems.value[i].value
-        )}"`;
+        input += `"${escapeCharacters(
+            inputItems.value[i].key
+        )}": "${escapeCharacters(inputItems.value[i].value)}"`;
     }
     input += "}";
     emit("input-change", input);
-};
-
-const escapeQuotes = (string) => {
-    if (typeof string === "string") {
-        return string.replaceAll('"', '\\"');
-    }
-
-    return string;
 };
 
 const addInputItem = () => {
@@ -113,5 +108,10 @@ const individualInputKeyRules = [
     (value) =>
         inputItems.value.filter((v) => v.key === value).length === 1 ||
         trans("ExperimentInputUniqueKeyError"),
+];
+
+const individualInputValueRules = [
+    (value) =>
+        isMatlabVectorCharacters(value) || trans("ExperimentInputValueError"),
 ];
 </script>
