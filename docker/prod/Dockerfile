@@ -60,11 +60,12 @@ COPY .env.production .env
 RUN mkdir -p storage/app/experiment_files \
     && chown -R www-data:www-data storage/app/experiment_files
 
-RUN npm install
-
 # Insall php dependencies and run php artisan basic actions
 RUN composer install --no-progress --no-interaction \
     && php artisan key:generate --force
+
+RUN npm install \
+    && npm run build
 
 # Install and setup Nginx
 RUN apt install nginx -y
