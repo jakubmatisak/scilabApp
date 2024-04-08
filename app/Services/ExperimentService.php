@@ -10,7 +10,7 @@ class ExperimentService
             $context .= "Context.{$key}={$value};";
         }
 
-        $script = "SCRIPT=\"loadXcosLibs();loadScicos();importXcosDiagram('/var/www/html/scilabApp/storage/app/" . $filePath . "');Context=struct();" . $context . "scicos_simulate(scs_m,list(),Context,'nw');\" /var/www/html/scilabApp/docker/run-script.sh";
+        $script = "SCRIPT=\"loadXcosLibs();loadScicos();importXcosDiagram('/var/www/scilabApp/storage/app/" . $filePath . "');Context=struct();" . $context . "scicos_simulate(scs_m,list(),Context,'nw');\" /var/www/scilabApp/docker/run-script.sh";
         
         $result = shell_exec($script);
 

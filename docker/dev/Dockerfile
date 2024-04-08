@@ -53,13 +53,13 @@ RUN chown -R root:root /root/ \
 RUN mkdir scilabApp
 
 # Setup Laravel
-WORKDIR /var/www/html/scilabApp
+WORKDIR /var/www/scilabApp
 COPY . .
-RUN chown -R www-data:www-data /var/www/html
+RUN chown -R www-data:www-data /var/www
 
 RUN npm install
 
-RUN chmod +x ./docker/entrypoint-install.sh ./docker/wait-for-it.sh
+RUN chmod +x ./docker/dev/entrypoint-install.sh ./docker/dev/wait-for-it.sh
 ENV PORT=8000
 ENTRYPOINT [ "/bin/bash", "-c" ]
-CMD [ "docker/wait-for-it.sh $DB_HOST:$DB_PORT --strict --quiet -- docker/entrypoint-install.sh" ]
+CMD [ "docker/dev/wait-for-it.sh $DB_HOST:$DB_PORT --strict --quiet -- docker/dev/entrypoint-install.sh" ]
