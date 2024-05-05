@@ -1,13 +1,53 @@
+name: scilab-prod
 version: "3.9"
 services:
-  scilab-prod:
+  scilab:
     build:
       context: .
       dockerfile: docker/prod/Dockerfile
     volumes:
-      - "./storage/app/experiment_files:/var/www/scilabApp/storage/app/experiment_files"
+      - experimentfiles:/var/www/scilabApp/storage/app/experiment_files
+      - phpmyadmindata:/var/www/phpmyadmin
     environment:
       - APP_ENV=production
     restart: always
     ports:
       - 8080:80
+      - 443:443
+    depends_on:
+      database:
+        condition: service_healthy
+
+  database:
+    image: mysql:8.0
+    ports:
+      - 3306:3306
+    restart: always
+    environment:
+      - MYSQL_DATABASE=${DB_DATABASE}
+      - MYSQL_USER=${DB_USERNAME}
+      - MYSQL_PASSWORD=${DB_PASSWORD}
+      - MYSQL_RANDOM_ROOT_PASSWORD=yes
+    volumes:
+      - mysqldata:/var/lib/mysql
+    healthcheck:
+      test: mysqladmin ping -h 127.0.0.1 -u $$DB_USERNAME --password=$$DB_PASSWORD
+      interval: 5s
+      retries: 10
+
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin:5-fpm-alpine
+    environment:
+      PMA_HOST: mysql
+    volumes:
+      - phpmyadmindata:/var/www/html
+    depends_on:
+      database:
+        condition: service_healthy
+
+volumes:
+  experimentfiles:
+
+  mysqldata:
+
+  phpmyadmindata:

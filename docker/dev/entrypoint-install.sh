@@ -8,6 +8,9 @@ if [ ! -f ".env" ]; then
     cp .env .env
 fi
 
+npm install
+
+
 php artisan migrate
 php artisan key:generate
 

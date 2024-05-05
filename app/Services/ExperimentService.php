@@ -15,7 +15,6 @@ class ExperimentService
         $result = shell_exec($script);
 
         $result = explode("\n\n", $result);
-        array_shift($result);
 
         $result_array = [];
         foreach ($result as $string) {

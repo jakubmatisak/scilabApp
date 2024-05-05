@@ -95,6 +95,8 @@ import { useSignUpMutation } from "@/api/queries/authQueries";
 import { useAuthStore } from "@/stores/Auth";
 import { useNotificationStore } from "@/stores/NotificationService";
 import { useWindowSize } from "@vueuse/core";
+import { trans } from "laravel-vue-i18n";
+import { SHA256 } from "crypto-js";
 
 const { width } = useWindowSize();
 const router = useRouter();
@@ -107,20 +109,18 @@ const formState = reactive({
     password: "",
     passwordRepeat: "",
 });
-const usernameRules = [(value) => !!value || "Username is required"];
+const usernameRules = [(value) => !!value || trans("UsernameRequired")];
 const emailRules = [
-    (value) => !!value || "Email is required",
-    (value) => /.+@.+\..+/.test(value) || "Email must be valid",
+    (value) => !!value || trans("EmailRequired"),
+    (value) => /.+@.{2,}\..{2,3}$/.test(value) || trans("EmailValid"),
 ];
 const passwordRules = [
-    (value) => !!value || "Password is required",
-    (value) =>
-        (value && value.length >= 6) ||
-        "Password must be at least 6 characters long",
+    (value) => !!value || trans("PasswordRequired"),
+    (value) => (value && value.length >= 6) || trans("PasswordSecure"),
 ];
 const passwordRepeatRules = [
-    (value) => !!value || "Password Repeat is required",
-    (value) => value === formState.password || "Passwords doesn't match",
+    (value) => !!value || trans("PasswordRepeatRequired"),
+    (value) => value === formState.password || trans("PasswordMatch"),
 ];
 
 const { mutateAsync, isLoading } = useSignUpMutation();
@@ -138,10 +138,11 @@ const onSubmit = async () => {
     }
 
     try {
+        const hashedPassword = SHA256(formState.password).toString();
         const { data: userData } = await mutateAsync({
             name: formState.username,
             email: formState.email,
-            password: formState.password,
+            password: hashedPassword,
         });
 
         signIn(userData.user, userData.token);

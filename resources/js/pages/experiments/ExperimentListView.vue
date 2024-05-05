@@ -15,7 +15,7 @@
         density="comfortable"
         icon
         size="small"
-        to="/experiments"
+        to="/experiments/add"
       >
         <v-icon>mdi-plus-circle</v-icon>
       </v-btn>

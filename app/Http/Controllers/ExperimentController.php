@@ -8,18 +8,10 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 use App\Services\ExperimentService;
 
-/**
+ /**
  * @OA\Tag(
  *     name="Experiments",
  *     description="API Endpoints for Experiments"
- * )
- */
- /**
- * @OA\SecurityScheme(
- *     type="http",
- *     securityScheme="bearerAuth",
- *     scheme="bearer",
- *     bearerFormat="JWT"
  * )
  */
 class ExperimentController extends Controller
@@ -266,14 +258,18 @@ class ExperimentController extends Controller
      *          description="Successful operation",
      *          @OA\JsonContent(
      *              type="object",
-     *              @OA\Property(property="id", type="integer", example=1),
-     *              @OA\Property(property="file_name", type="string", example="experiment_files/1622619815_1619954846_tcn.zcos"),
-     *              @OA\Property(property="context", type="string", example="{}"),
-     *              @OA\Property(property="output", type="string", example="{}"),
-     *              @OA\Property(property="save", type="integer", example=0),
-     *              @OA\Property(property="created_by", type="integer", example=1),
-     *              @OA\Property(property="created_at", type="string", format="date-time"),
-     *              @OA\Property(property="updated_at", type="string", format="date-time")
+     *              @OA\Property(
+     *                  property="experiment",
+     *                  type="object",
+     *                  @OA\Property(property="id", type="integer", example=1),
+     *                  @OA\Property(property="file_name", type="string", example="experiment_files/example.zcos"),
+     *                  @OA\Property(property="context", type="string", example="{}"),
+     *                  @OA\Property(property="output", type="string", example="{}"),
+     *                  @OA\Property(property="save", type="integer", example=0),
+     *                  @OA\Property(property="created_by", type="integer", example=1),
+     *                  @OA\Property(property="created_at", type="string", format="date-time"),
+     *                  @OA\Property(property="updated_at", type="string", format="date-time")
+     *              )
      *          )
      *      ),
      *      @OA\Response(

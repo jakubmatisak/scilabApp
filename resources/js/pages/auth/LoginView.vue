@@ -64,6 +64,8 @@ import { useSignInMutation } from "@/api/queries/authQueries";
 import { useAuthStore } from "@/stores/Auth";
 import { useNotificationStore } from "@/stores/NotificationService";
 import { useWindowSize } from "@vueuse/core";
+import { trans } from "laravel-vue-i18n";
+import { SHA256 } from "crypto-js";
 
 const { width } = useWindowSize();
 const router = useRouter();
@@ -75,8 +77,8 @@ const formState = reactive({
     email: "",
     password: "",
 });
-const emailRules = [(value) => !!value || "Email is required"];
-const passwordRules = [(value) => !!value || "Password is required"];
+const emailRules = [(value) => !!value || trans("EmailRequired")];
+const passwordRules = [(value) => !!value || trans("PasswordRequired")];
 
 const { mutateAsync, isLoading } = useSignInMutation();
 
@@ -88,9 +90,10 @@ const onSubmit = async () => {
     }
 
     try {
+        const hashedPassword = SHA256(formState.password).toString();
         const { data: userData } = await mutateAsync({
             email: formState.email,
-            password: formState.password,
+            password: hashedPassword,
         });
 
         signIn(userData.user, userData.token);

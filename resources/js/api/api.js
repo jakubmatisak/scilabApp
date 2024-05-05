@@ -4,7 +4,7 @@ import { useNotificationStore } from "../stores/NotificationService";
 import router from "@/router";
 
 const api = axios.create({
-    baseURL: "http://127.0.0.1:8000/api/",
+    baseURL: import.meta.env.VITE_API_URL,
     headers: {
         "Content-Type": "application/json",
     },
@@ -32,11 +32,11 @@ api.interceptors.response.use(
             if (error.response.status === 401) {
                 showSnackbar("Your session expired.", "error");
                 signOut();
-                router.push('/login');
+                router.push("/login");
             }
         }
         return Promise.reject(error);
-    },
+    }
 );
 
 export default api;

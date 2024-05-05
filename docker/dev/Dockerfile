@@ -54,12 +54,6 @@ RUN mkdir scilabApp
 
 # Setup Laravel
 WORKDIR /var/www/scilabApp
-COPY . .
-RUN chown -R www-data:www-data /var/www
 
-RUN npm install
-
-RUN chmod +x ./docker/dev/entrypoint-install.sh ./docker/dev/wait-for-it.sh
 ENV PORT=8000
-ENTRYPOINT [ "/bin/bash", "-c" ]
-CMD [ "docker/dev/wait-for-it.sh $DB_HOST:$DB_PORT --strict --quiet -- docker/dev/entrypoint-install.sh" ]
+ENTRYPOINT [ "./docker/dev/entrypoint-install.sh" ]

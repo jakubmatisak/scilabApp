@@ -4,32 +4,50 @@ import laravel from "laravel-vite-plugin";
 import eslintPlugin from "vite-plugin-eslint";
 import vue from "@vitejs/plugin-vue";
 import i18n from "laravel-vue-i18n/vite";
-import { fileURLToPath, URL } from "node:url";
+import fs from "fs";
 
-export default defineConfig({
-    define: { "process.env": {} },
-    plugins: [
-        vue({
-            template: { transformAssetUrls },
-        }),
-        laravel({
-            input: ["resources/css/app.css", "resources/js/app.js"],
-            refresh: true,
-        }),
-        i18n(),
-        eslintPlugin({ cache: false, fix: true }),
-        vuetify({
-            autoImport: true,
-        }),
-    ],
-    resolve: {
-        alias: {
-            "@": fileURLToPath(new URL("./resources/js/", import.meta.url)),
+export default defineConfig(({ mode }) => {
+    const isProduction = mode === "production";
+    const host = "site19.webte.fei.stuba.sk";
+
+    return {
+        plugins: [
+            vue({
+                template: {
+                    transformAssetUrls,
+                },
+                isProduction,
+            }),
+            laravel({
+                input: ["resources/js/app.js"],
+                refresh: true,
+                detectTls: isProduction && host,
+            }),
+            i18n(),
+            eslintPlugin({ cache: false, fix: true }),
+            vuetify({
+                autoImport: true,
+            }),
+        ],
+        resolve: {
+            alias: {
+                "@": "/resources/js",
+            },
+            extensions: [".js", ".json", ".jsx", ".mjs", ".ts", ".tsx", ".vue"],
         },
-        extensions: [".js", ".json", ".jsx", ".mjs", ".ts", ".tsx", ".vue"],
-    },
-    server: {
-        port: 3000,
-    },
-    base: "./",
+        server: {
+            host: true,
+            port: 3000,
+            https: isProduction && {
+                cert: fs.readFileSync(
+                    "./docker/prod/certificates/webte_fei_stuba_sk.pem"
+                ),
+                key: fs.readFileSync(
+                    "./docker/prod/certificates/webte.fei.stuba.sk.key"
+                ),
+            },
+            hmr: isProduction ? false : { port: 3000 },
+        },
+        base: "./",
+    };
 });

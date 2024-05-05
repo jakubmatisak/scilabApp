@@ -11,14 +11,14 @@ RUN apt install -y php8.2\
     php8.2-cli\
     php8.2-common\
     php8.2-fpm\
-    php8.2-mysql\
     php8.2-zip\
     php8.2-gd\
     php8.2-mbstring\
     php8.2-curl\
     php8.2-xml\
     php8.2-bcmath\
-    php8.2-pdo
+    php8.2-pdo\
+    php8.2-mysql
 
 # Install composer for Laravel
 RUN apt install -y curl && \
@@ -43,12 +43,8 @@ RUN cd /tmp \
     && rm scilab-6.0.2.bin.linux-x86_64.tar.gz \
     && mkdir -p /scripts
 
-# Copy run-script for executing scilab simulations
-COPY docker/run-script.sh /scripts/
-
 # Add permissions for running script
-RUN chown -R root:root /root/ \
-    && chmod +x /scripts/run-script.sh
+RUN chown -R root:root /root/
 
 RUN mkdir scilabApp
 
@@ -61,8 +57,7 @@ RUN mkdir -p storage/app/experiment_files \
     && chown -R www-data:www-data storage/app/experiment_files
 
 # Insall php dependencies and run php artisan basic actions
-RUN composer install --no-progress --no-interaction \
-    && php artisan key:generate --force
+RUN composer install --no-progress --no-interaction
 
 RUN npm install \
     && npm run build
@@ -70,14 +65,17 @@ RUN npm install \
 # Install and setup Nginx
 RUN apt install nginx -y
 COPY ./docker/prod/scilabApp.conf /etc/nginx/sites-available/scilabApp.conf
-RUN ln -s /etc/nginx/sites-available/scilabApp.conf /etc/nginx/sites-enabled/
+RUN ln -s /etc/nginx/sites-available/scilabApp.conf /etc/nginx/sites-enabled/ \
+    && cp ./docker/prod/certificates/webte_fei_stuba_sk.pem /etc/ssl/certs/ \
+    && cp ./docker/prod/certificates/webte.fei.stuba.sk.key /etc/ssl/private/
 
 # Setup php-fpm
 RUN mkdir -p /run/php/ \
     && chown www-data:www-data /run/php/ \
     && chmod 755 /run/php/
 
-RUN chmod +x docker/prod/entrypoint.sh
+RUN chmod +x docker/prod/entrypoint.sh \
+    && chmod +x docker/run-script.sh
 
 EXPOSE 80
 ENTRYPOINT [ "/bin/bash", "-c" ]
