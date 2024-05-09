@@ -5,7 +5,7 @@ import LoginView from "@/pages/auth/LoginView.vue";
 import RegisterView from "@/pages/auth/RegisterView.vue";
 import ExperimentListView from "@/pages/experiments/ExperimentListView.vue";
 import ExperimentSaveView from "@/pages/experiments/save/SaveView";
-import ExperimentDetailView from "@/pages/experiments/DetailView";
+import ExperimentDetailView from "@/pages/experiments/detail/DetailView";
 import { authGuard } from "./Guards/AuthGuard";
 
 const routes = [

@@ -32,6 +32,7 @@
               <v-spacer />
               <v-col class="no-grow pb-0">
                 <v-btn
+                  :disabled="isLoading"
                   :size="width < 600 ? 'small' : 'default'"
                   variant="outlined"
                   @click="onCreateAccountPressed"
@@ -77,7 +78,10 @@ const formState = reactive({
     email: "",
     password: "",
 });
-const emailRules = [(value) => !!value || trans("EmailRequired")];
+const emailRules = [
+    (value) => !!value || trans("EmailRequired"),
+    (value) => /.+@.{2,}\..{2,3}$/.test(value) || trans("EmailValid"),
+];
 const passwordRules = [(value) => !!value || trans("PasswordRequired")];
 
 const { mutateAsync, isLoading } = useSignInMutation();

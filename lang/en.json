@@ -4,7 +4,7 @@
     "EditExperiment": "Edit Experiment",
     "ExperimentList": "Experiment List",
     "DarkMode": "Dark Mode",
-    "Username": "Username",
+    "FullName": "Full Name",
     "Email": "Email",
     "Password": "Password",
     "RepeatPassword": "Repeat password",
@@ -15,7 +15,7 @@
     "CreateAccount": "Don't have an account? Register",
     "LoginToAccount": "Already have an account? Login",
     "Logout": "Logout",
-    "UsernameRequired": "Username is required",
+    "FullNameRequired": "Full name is required",
     "EmailRequired": "Email is required",
     "EmailValid": "Email must be valid",
     "PasswordRequired": "Password is required",
@@ -25,6 +25,7 @@
     "ExperimentDetailTitle": "Experiment Detail",
     "By": "By",
     "Remove": "Remove",
+    "Simulate": "Simulate",
     "SaveExperiment": "Save experiment",
     "ExperimentName": "Experiment name",
     "ExperimentSchema": "Experiment schema",
@@ -53,6 +54,9 @@
     "ExperimentObjects": "Objects",
     "ExperimentOutputs": "Outputs",
     "ExperimentInputs": "Inputs",
+    "GraphTab": "Graph",
+    "JSONTab": "JSON",
     "Key": "Key",
-    "Value": "Value"
+    "Value": "Value",
+    "SearchExperiment": "Search by experiment name..."
 }

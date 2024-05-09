@@ -1,8 +1,10 @@
 import { useMutation } from "@tanstack/vue-query";
 import api from "../api";
 
-const experimentsList = async ({ page, itemsPerPage, sortBy }) => {
-    const url = `/experiments?page=${page || 1}&perPage=${itemsPerPage}`;
+const experimentsList = async ({ page, itemsPerPage, sortBy, search }) => {
+    const url = `/experiments?page=${
+        page || 1
+    }&perPage=${itemsPerPage}&search=${search || ""}`;
     const sortByQueryParams = sortBy
         ? `&sortByKey=${sortBy.key}&sortByOrder=${sortBy.order}`
         : "";

@@ -15,7 +15,7 @@
             <v-text-field
               id="username"
               v-model="formState.username"
-              :label="$t('Username')"
+              :label="$t('FullName')"
               name="username"
               prepend-icon="mdi-account"
               :rules="usernameRules"
@@ -52,6 +52,7 @@
               <v-spacer />
               <v-col class="no-grow pb-0">
                 <v-btn
+                  :disabled="isLoading"
                   :size="width < 600 ? 'small' : 'default'"
                   variant="outlined"
                   @click="onAlreadyHavenAnAccountPressed"
@@ -70,17 +71,6 @@
                 </v-btn>
               </v-col>
             </v-row>
-            <v-snackbar
-              v-model="snackbar"
-              color="error"
-              rounded="pill"
-              :timeout="2000"
-            >
-              {{
-                error?.response?.data?.message ||
-                  "Error ocurred"
-              }}
-            </v-snackbar>
           </v-form>
         </v-container>
       </v-card-text>
@@ -109,7 +99,7 @@ const formState = reactive({
     password: "",
     passwordRepeat: "",
 });
-const usernameRules = [(value) => !!value || trans("UsernameRequired")];
+const usernameRules = [(value) => !!value || trans("FullNameRequired")];
 const emailRules = [
     (value) => !!value || trans("EmailRequired"),
     (value) => /.+@.{2,}\..{2,3}$/.test(value) || trans("EmailValid"),
@@ -149,8 +139,17 @@ const onSubmit = async () => {
 
         router.push("/");
     } catch (err) {
-        console.error(err);
-        showSnackbar(err?.response?.data?.message || "Error ocurred", "error");
+        if (err?.response?.data?.errors) {
+            showSnackbar(
+                Object.values(err?.response?.data?.errors)[0][0],
+                "error"
+            );
+        } else {
+            showSnackbar(
+                err?.response?.data?.message || "Error ocurred",
+                "error"
+            );
+        }
     }
 };
 </script>

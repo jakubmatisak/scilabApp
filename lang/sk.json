@@ -4,7 +4,7 @@
     "EditExperiment": "Upraviť Experiment",
     "ExperimentList": "Zoznam Experimentov",
     "DarkMode": "Tmavý mód",
-    "Username": "Prihlasovacie meno",
+    "FullName": "Meno Priezvisko",
     "Email": "Email",
     "Password": "Heslo",
     "RepeatPassword": "Heslo znovu",
@@ -15,7 +15,7 @@
     "CreateAccount": "Ešte nemáš účet? Zaregistruj sa",
     "LoginToAccount": "Už máš účet? Prihlás sa",
     "Logout": "Odhlásiť sa",
-    "UsernameRequired": "Používateľské meno je povinné",
+    "FullNameRequired": "Meno a priezvisko používateľa je povinné",
     "EmailRequired": "Email je povinný",
     "EmailValid": "Email musí byť validný",
     "PasswordRequired": "Heslo je povinné",
@@ -25,6 +25,7 @@
     "ExperimentDetailTitle": "Detail Experimentu",
     "By": "Od",
     "Remove": "Odstrániť",
+    "Simulate": "Simulovať",
     "SaveExperiment": "Uložiť experiment",
     "ExperimentName": "Názov experimentu",
     "ExperimentSchema": "Schéma experimentu",
@@ -53,6 +54,9 @@
     "ExperimentObjects": "Objekty",
     "ExperimentOutputs": "Výstupy",
     "ExperimentInputs": "Vstupy",
+    "GraphTab": "Graf",
+    "JSONTab": "JSON",
     "Key": "Kľúč",
-    "Value": "Hodnota"
+    "Value": "Hodnota",
+    "SearchExperiment": "Hľadať podľa názvu experimentu..."
 }

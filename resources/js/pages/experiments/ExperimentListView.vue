@@ -30,10 +30,21 @@
         :items="experimentsMapped"
         :items-length="totalItems"
         :loading="isPending"
+        :mobile="false"
+        :search="searchName"
         @click:row="onRowClick"
         @update:options="loadItems"
       >
-        <!-- CODE IS INSPIRED FROM JAKUB MATISAK -->
+        <template #top>
+          <v-text-field
+            v-model="searchName"
+            append-inner-icon="mdi-magnify"
+            class="search-input"
+            hide-details
+            :placeholder="$t('SearchExperiment')"
+          />
+        </template>
+        <!-- CODE IS INSPIRED BY JAKUB MATISAK -->
         <template
           v-if="width < 768"
           #headers="{ columns, isSorted, getSortIcon, toggleSort }"
@@ -84,7 +95,7 @@
             v-else
             :key="i"
             class="cursor-pointer"
-            @click.stop="onRowClick(i, { item: item.raw })"
+            @click.stop="() => console.log(width)"
           >
             <td>
               <ul class="mobile-grid-content">
@@ -122,6 +133,7 @@ import { useDate } from "vuetify";
 import { useWindowSize } from "@vueuse/core";
 
 const { width } = useWindowSize();
+const searchName = ref("");
 const date = useDate();
 const router = useRouter();
 const { isPending, mutateAsync } = useExperimentsListMutation();
@@ -150,7 +162,7 @@ const experimentsMapped = computed(() => {
         ...experiment,
         created_at: date.format(
             new Date(experiment.created_at),
-            "keyboardDate"
+            "keyboardDateTime"
         ),
         created_by: getCreatedBy(experiment.created_by),
     }));
@@ -162,16 +174,30 @@ const getCreatedBy = (id) => {
     return user ? user.name : id;
 };
 
-const loadItems = ({ page, itemsPerPage, sortBy }) => {
-    mutateAsync({ page, itemsPerPage, sortBy: sortBy && sortBy[0] }).then(
-        (data) => {
-            if (data?.experiments) {
-                experiments.value = data.experiments.data;
-                totalItems.value = data.experiments.total;
-            }
-        }
-    );
+const debounce = (fn, delay) => {
+    let timer;
+
+    return (...args) => {
+        clearTimeout(timer);
+        timer = setTimeout(() => {
+            fn(...args);
+        }, delay);
+    };
 };
+
+const loadItems = debounce(({ page, itemsPerPage, sortBy }) => {
+    mutateAsync({
+        page,
+        itemsPerPage,
+        sortBy: sortBy && sortBy[0],
+        search: searchName.value,
+    }).then((data) => {
+        if (data?.experiments) {
+            experiments.value = data.experiments.data;
+            totalItems.value = data.experiments.total;
+        }
+    });
+}, 500);
 
 const onRowClick = (_, { item }) => {
     router.push(`/experiments/${item.id}`);
@@ -182,41 +208,46 @@ const onRowClick = (_, { item }) => {
 .v-card {
     display: flex !important;
     flex-direction: column;
-}
 
-.v-card-text {
-    overflow: scroll;
-}
+    .v-card-text {
+        overflow: scroll;
 
-.v-table {
-    height: 100%;
+        .v-table {
+            height: 100%;
 
-    :deep(.v-data-table__th) {
-        font-weight: bold;
-    }
-}
+            :deep(.v-data-table__th) {
+                font-weight: bold;
+            }
 
-.mobile-grid-content {
-    list-style-type: none;
-    padding: 1rem 0;
-    margin: 0;
-    display: flex;
-    flex-wrap: wrap;
-    width: 100%;
+            .search-input {
+                display: block;
+                flex: 0;
+            }
 
-    .mobile-grid-item {
-        display: flex;
-        justify-content: space-between;
-        min-height: 1.5rem;
-        padding: 0.25rem 1rem;
-        width: 100%;
+            .mobile-grid-content {
+                list-style-type: none;
+                padding: 1rem 0;
+                margin: 0;
+                display: flex;
+                flex-wrap: wrap;
+                width: 100%;
 
-        .mobile-grid-item-bolder {
-            font-weight: bold;
-        }
+                .mobile-grid-item {
+                    display: flex;
+                    justify-content: space-between;
+                    min-height: 1.5rem;
+                    padding: 0.25rem 1rem;
+                    width: 100%;
 
-        .mobile-grid-item-value {
-            text-align: right;
+                    .mobile-grid-item-bolder {
+                        font-weight: bold;
+                    }
+
+                    .mobile-grid-item-value {
+                        text-align: right;
+                    }
+                }
+            }
         }
     }
 }

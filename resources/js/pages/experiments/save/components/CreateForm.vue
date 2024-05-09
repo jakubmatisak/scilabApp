@@ -7,17 +7,6 @@
       class="ma-0 pa-0"
       fluid
     >
-      <v-row
-        v-if="!experiment"
-        class="px-2"
-      >
-        <v-switch
-          v-model="formState.save"
-          color="primary"
-          inset
-          :label="$t('SaveExperiment')"
-        />
-      </v-row>
       <v-row>
         <v-col class="form-item">
           <v-text-field
@@ -78,7 +67,6 @@
                 prepend-icon="mdi-code-json"
                 :rules="inputRules"
                 variant="outlined"
-                @update:model-value="onInputChange"
               />
             </v-col>
             <v-col class="form-item">
@@ -88,12 +76,50 @@
                 prepend-icon="mdi-code-brackets"
                 :rules="outputRules"
                 variant="outlined"
-                @update:model-value="onOutputChange"
               />
             </v-col>
           </v-row>
         </v-window-item>
       </v-window>
+      <v-row
+        v-if="!experiment"
+        class="px-2"
+        dense
+        justify="end"
+      >
+        <v-spacer />
+        <v-col class="no-grow pb-0">
+          <v-btn
+            :size="width < 650 ? 'small' : 'default'"
+            variant="elevated"
+            @click="onSimulateClicked"
+          >
+            {{ $t("Simulate") }}
+          </v-btn>
+        </v-col>
+        <v-col class="no-grow">
+          <v-btn
+            :size="width < 650 ? 'small' : 'default'"
+            variant="elevated"
+            @click="onSaveClicked"
+          >
+            {{ $t("SaveExperiment") }}
+          </v-btn>
+        </v-col>
+      </v-row>
+      <v-row
+        v-else
+        class="px-2"
+        justify="end"
+      >
+        <v-btn
+          :size="width < 650 ? 'small' : 'default'"
+          variant="elevated"
+          @click="onSimulateClicked"
+        >
+          {{ $t("SaveExperiment") }}
+        </v-btn>
+      </v-row>
     </v-container>
   </v-form>
 </template>
@@ -108,9 +134,14 @@ import {
     isJsonString,
     objectContainsUniqueKeys,
 } from "@/utils/formRules";
-import OutputItems from "./OutputItems.vue";
-import InputItems from "./InputItems.vue";
+import OutputItems from "../../components/OutputItems.vue";
+import InputItems from "../../components/InputItems.vue";
+import { useWindowSize } from "@vueuse/core";
+import { useNotificationStore } from "@/stores/NotificationService";
+import { useRoute } from "vue-router";
 
+const { width } = useWindowSize();
+const { showSnackbar } = useNotificationStore();
 const tab = ref(null);
 const props = defineProps({
     loading: {
@@ -121,19 +152,28 @@ const props = defineProps({
         type: Object,
         default: undefined,
     },
+    saveExperiment: {
+        type: Function,
+        required: true,
+    },
 });
+const route = useRoute();
+const isEditView = ref(route.path.includes("edit"));
 
 const form = ref(null);
 const formState = reactive({
-    save: false,
     name: "",
     file: undefined,
     output: "[]",
     input: "{}",
-    outputItems: [""],
-    inputItems: [{ key: "", value: "" }],
 });
 const file = ref("");
+
+watch(route, () => {
+    resetFormDefaultValues();
+    file.value = "";
+    form.value.resetValidation();
+});
 
 watch(props, () => {
     if (props.experiment && props.loading === false) {
@@ -142,59 +182,24 @@ watch(props, () => {
         formState.output = output;
         formState.name = name;
         file.value = file_name;
-        onOutputChange();
-        onInputChange();
     }
 });
 
+const resetFormDefaultValues = () => {
+    formState.save = false;
+    formState.name = "";
+    formState.file = undefined;
+    formState.output = "[]";
+    formState.input = "{}";
+};
+
 const changeOutputItems = (output) => {
     formState.output = output;
-    onOutputChange();
 };
 
 const changeInputItems = (input) => {
     formState.input = input;
-    onInputChange();
 };
-
-const onOutputChange = (_) => {
-    try {
-        const outputArray = JSON.parse(formState.output);
-
-        if (
-            outputArray &&
-            typeof outputArray === "object" &&
-            Array.isArray(outputArray)
-        ) {
-            formState.outputItems = outputArray;
-        }
-    } catch (e) {
-        formState.outputItems = [""];
-    }
-};
-
-const onInputChange = (_) => {
-    try {
-        const inputObject = JSON.parse(formState.input);
-        const keys = Object.keys(inputObject);
-        const values = Object.values(inputObject);
-
-        const inputItems = [];
-        for (let i = 0; i < keys.length; i++) {
-            inputItems.push({ key: keys[i], value: values[i] });
-        }
-
-        formState.inputItems = inputItems;
-    } catch (e) {
-        formState.inputItems = [{ key: "", value: "" }];
-    }
-};
-
-defineExpose({
-    form,
-    formState,
-    file,
-});
 
 const nameRules = [
     (value) => !formState.save || !!value || trans("ExperimentNameError"),
@@ -219,15 +224,61 @@ const inputRules = [
         objectContainsUniqueKeys(value) ||
         trans("ExperimentInputUniqueKeyError"),
 ];
+
+const emit = defineEmits(["simulation-data-change"]);
+
+const onSimulateClicked = () => {
+    formState.save = false;
+    createExperiment(false);
+};
+
+const onSaveClicked = () => {
+    formState.save = true;
+    createExperiment(true);
+};
+
+const createExperiment = async (isSave) => {
+    const { valid: isValid } = await form.value.validate();
+    if (isValid) {
+        try {
+            emit("simulation-data-change", { data: { simulation: [] } });
+            const { data } = await props.saveExperiment({
+                id: route.params.id,
+                name: formState.name,
+                file: formState.file || undefined,
+                context: formState.input,
+                output: formState.output,
+                save: isSave,
+            });
+
+            const snackbarMessage = isEditView.value
+                ? trans("ExperimentEditSuccess")
+                : trans("ExperimentCreateSuccess");
+            showSnackbar(snackbarMessage, "success");
+
+            if (data.simulation.length == 0) {
+                showSnackbar(trans("ExperimentSimulationError"), "error");
+            }
+
+            if (isSave) {
+                resetFormDefaultValues();
+                form.value.resetValidation();
+            }
+            emit("simulation-data-change", { data });
+        } catch (err) {
+            console.log(err);
+            const snackbarMessage = isEditView.value
+                ? trans("ExperimentEditError")
+                : trans("ExperimentCreateError");
+            showSnackbar(snackbarMessage, "error");
+        }
+    }
+};
 </script>
 
 <style lang="scss">
 .form-item {
-    min-width: 300px;
-
-    @media (min-width: 600px) {
-        min-width: 380px;
-    }
+    min-width: 400px;
 
     :deep(.v-field__input) {
         padding: 8px 16px;
@@ -253,5 +304,9 @@ const inputRules = [
     .v-row {
         margin: 0px;
     }
+}
+
+.no-grow {
+    flex-grow: 0;
 }
 </style>

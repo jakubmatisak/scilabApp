@@ -55,12 +55,21 @@ const props = defineProps({
 });
 
 watch(props.formState, (newProps, _) => {
-    if (newProps.outputItems !== outputItems.value) {
-        if (newProps.outputItems.length === 0) {
-            outputItems.value = [""];
-        } else {
-            outputItems.value = newProps.outputItems;
+    try {
+        const outputArray = JSON.parse(newProps.output);
+        if (
+            outputArray &&
+            typeof outputArray === "object" &&
+            Array.isArray(outputArray)
+        ) {
+            if (outputArray.length === 0) {
+                outputItems.value = [""];
+            } else {
+                outputItems.value = outputArray;
+            }
         }
+    } catch (e) {
+        outputItems.value = [""];
     }
 });
 
@@ -83,6 +92,7 @@ const removeOutputItem = (idx) => {
 
 const addOutputItem = () => {
     outputItems.value.push("");
+    onOutputItemsChange();
 };
 
 const individualOutputRules = [

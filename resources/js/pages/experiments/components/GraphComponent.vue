@@ -1,40 +1,62 @@
 <template>
   <div>
     <span class="text-md-h5 text-sm-h5">{{ $t("ExperimentResult") }}:</span>
-    <div class="experiment-graf mt-4">
-      <apexchart
-        :options="options"
-        :series="dataSeries"
-        type="line"
-      />
-      <v-overlay
-        class="align-center justify-center rounded-lg"
-        :close-on-back="false"
-        contained
-        :model-value="showOverlay"
-        no-click-animation
-        persistent
-      >
-        <div
-          class="graph-no-data pa-4 rounded-lg text-md-h2 text-sm-h5"
-        >
-          <v-progress-circular
-            v-if="loading"
-            color="primary"
-            indeterminate
-            :size="45"
+    <v-tabs v-model="tab">
+      <v-tab value="graph">
+        {{ $t("GraphTab") }}
+      </v-tab>
+      <v-tab value="json">
+        {{ $t("JSONTab") }}
+      </v-tab>
+    </v-tabs>
+    <v-window v-model="tab">
+      <v-window-item value="graph">
+        <div class="experiment-graf mt-4">
+          <apexchart
+            :options="options"
+            :series="dataSeries"
+            type="line"
           />
-          <span v-else>
-            {{ $t("GraphNoData") }}
-          </span>
+          <v-overlay
+            class="align-center justify-center rounded-lg"
+            :close-on-back="false"
+            contained
+            :model-value="showOverlay"
+            no-click-animation
+            persistent
+          >
+            <div
+              class="graph-no-data pa-4 rounded-lg text-md-h2 text-sm-h5"
+            >
+              <v-progress-circular
+                v-if="loading"
+                color="primary"
+                indeterminate
+                :size="45"
+              />
+              <span v-else>
+                {{ $t("GraphNoData") }}
+              </span>
+            </div>
+          </v-overlay>
         </div>
-      </v-overlay>
-    </div>
+      </v-window-item>
+      <v-window-item value="json">
+        <div class="json">
+          <vue-json-pretty
+            :data="props.data"
+            virtual
+          />
+        </div>
+      </v-window-item>
+    </v-window>
   </div>
 </template>
 
 <script setup>
-import { computed } from "vue";
+import { computed, ref } from "vue";
+import VueJsonPretty from "vue-json-pretty";
+import "vue-json-pretty/lib/styles.css";
 
 const props = defineProps({
     data: {
@@ -48,6 +70,7 @@ const props = defineProps({
 });
 
 const showOverlay = computed(() => props.data.length === 0 || props.loading);
+const tab = ref(null);
 
 const dataSeries = computed(() => {
     if (!props.data.length) {
@@ -91,6 +114,11 @@ const xAxis = computed(() =>
 const options = computed(() => ({
     chart: {
         id: "scilab-simulation",
+        toolbar: {
+            tools: {
+                download: false,
+            },
+        },
     },
     xaxis: {
         type: "numeric",
@@ -117,5 +145,11 @@ const options = computed(() => ({
 
 .graph-no-data {
     background-color: rgba(255, 255, 255, 0.8);
+}
+
+.json {
+    background-color: rgba(0, 0, 0, 0.16);
+    border-radius: 8px;
+    padding: 4px;
 }
 </style>

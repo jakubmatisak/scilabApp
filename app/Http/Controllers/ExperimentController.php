@@ -51,7 +51,8 @@ class ExperimentController extends Controller
             $perPage = $request->query('perPage', 5);
             $sortByKey = $request->query('sortByKey', "id");
             $sortByOrder = $request->query('sortByOrder', "asc");
-            $experiments =  Experiment::orderBy($sortByKey, $sortByOrder)->get();
+            $search = $request->query('search', "");
+            $experiments =  Experiment::orderBy($sortByKey, $sortByOrder)->where('name', 'LIKE', '%' . $search . '%')->get();
             if($perPage == -1) {
                 return response()->json(["experiments"=>["data"=>$experiments, "total"=>$experiments->count()]]);
             }

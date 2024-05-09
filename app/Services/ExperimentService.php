@@ -14,6 +14,12 @@ class ExperimentService
         
         $result = shell_exec($script);
 
+        $result = explode("\n", $result);
+        while (!preg_match('/\d/', $result[0])) {
+            array_shift($result);
+        }
+        $result = implode("\n", $result);
+
         $result = explode("\n\n", $result);
 
         $result_array = [];
@@ -38,6 +44,6 @@ class ExperimentService
             }
         }
 
-        return $result_array;
+        return count($result_array) > 1 ? $result_array : [];
     }
 }
