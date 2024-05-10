@@ -47,7 +47,7 @@ npm install
 ### To run the application in docker, run:
 
 ```sh
-docker compose up -d
+docker compose -f docker-compose.dev.yml up -d
 ```
 
 ### To run the application locally on your linux machine, run:
