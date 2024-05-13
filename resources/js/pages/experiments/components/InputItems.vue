@@ -1,8 +1,12 @@
 <template>
-  <v-col class="form-item">
+  <v-col
+    class="form-item"
+    cols="12"
+    :md="isCreateForm ? 6 : 12"
+  >
     <v-row
       align="center"
-      class="pl-10"
+      :class="{ 'pl-10': isCreateForm }"
       justify="space-between"
     >
       <div class="mb-4 text-h6">
@@ -22,12 +26,13 @@
         v-for="(_, idx) in inputItems"
         :key="idx"
         align="center"
-        class="pl-10"
+        :class="{ 'pl-10': isCreateForm }"
         justify="center"
       >
         <v-col class="pa-0">
           <v-text-field
             v-model="inputItems[idx].key"
+            :density="width < 400 ? 'compact' : 'default'"
             :label="$t('Key')"
             required
             :rules="individualInputKeyRules"
@@ -38,6 +43,7 @@
         <v-col class="ml-5 pa-0">
           <v-text-field
             v-model="inputItems[idx].value"
+            :density="width < 400 ? 'compact' : 'default'"
             :label="$t('Value')"
             required
             :rules="individualInputValueRules"
@@ -60,7 +66,7 @@
         v-for="(_, idx) in inputItems"
         :key="idx"
         align="center"
-        class="pl-10"
+        :class="{ 'pl-10': isCreateForm }"
         dense
         justify="center"
       >
@@ -68,6 +74,7 @@
           <v-row>
             <v-text-field
               v-model="inputItems[idx].key"
+              :density="width < 400 ? 'compact' : 'default'"
               :label="$t('Key')"
               required
               :rules="individualInputKeyRules"
@@ -78,6 +85,7 @@
           <v-row>
             <v-text-field
               v-model="inputItems[idx].value"
+              :density="width < 400 ? 'compact' : 'default'"
               :label="$t('Value')"
               required
               :rules="individualInputValueRules"
@@ -86,17 +94,15 @@
             />
           </v-row>
         </v-col>
-        <v-col class="no-grow pb-0">
-          <v-btn
-            class="icon-btn mb-6 mt-1"
-            color="error"
-            density="compact"
-            icon="mdi-minus-circle"
-            variant="text"
-            @click="removeInputItem(idx)"
-          />
-        </v-col>
-        <v-divider />
+        <v-btn
+          class="icon-btn mb-6 ml-4 mt-1"
+          color="error"
+          density="compact"
+          icon="mdi-minus-circle"
+          variant="text"
+          @click="removeInputItem(idx)"
+        />
+        <v-divider class="pb-3" />
       </v-row>
     </div>
   </v-col>
@@ -104,10 +110,11 @@
 
 <script setup>
 import { trans } from "laravel-vue-i18n";
-import { ref, watch } from "vue";
+import { computed, ref, watch } from "vue";
 import { isMatlabVectorCharacters } from "@/utils/formRules";
 import { escapeCharacters } from "../utils/escapeUtils";
 import { useWindowSize } from "@vueuse/core";
+import { useRoute } from "vue-router";
 
 const { width } = useWindowSize();
 const inputItems = ref([{ key: "", value: "" }]);
@@ -118,6 +125,10 @@ const props = defineProps({
         required: true,
     },
 });
+const route = useRoute();
+const isCreateForm = computed(
+    () => route.path.includes("edit") || route.path.includes("add")
+);
 
 watch(props.formState, (newProps, _) => {
     try {

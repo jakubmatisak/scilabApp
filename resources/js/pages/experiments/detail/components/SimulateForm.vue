@@ -7,10 +7,16 @@
     @submit.prevent="onSubmit"
   >
     <v-tabs v-model="tab">
-      <v-tab value="individual">
+      <v-tab
+        :size="width < 600 ? 'small' : 'default'"
+        value="individual"
+      >
         {{ $t("ExperimentIndividualItems") }}
       </v-tab>
-      <v-tab value="object">
+      <v-tab
+        :size="width < 600 ? 'small' : 'default'"
+        value="object"
+      >
         {{ $t("ExperimentObjects") }}
       </v-tab>
     </v-tabs>

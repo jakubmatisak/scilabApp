@@ -58,5 +58,6 @@
     "JSONTab": "JSON",
     "Key": "Key",
     "Value": "Value",
-    "SearchExperiment": "Search by experiment name..."
+    "SearchExperiment": "Search by experiment name...",
+    "ExportCSV": "Export CSV file"
 }

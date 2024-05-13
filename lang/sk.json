@@ -58,5 +58,6 @@
     "JSONTab": "JSON",
     "Key": "Kľúč",
     "Value": "Hodnota",
-    "SearchExperiment": "Hľadať podľa názvu experimentu..."
+    "SearchExperiment": "Hľadať podľa názvu experimentu...",
+    "ExportCSV": "Stiahnuť CSV súbor"
 }

@@ -95,7 +95,9 @@
             v-else
             :key="i"
             class="cursor-pointer"
-            @click.stop="() => console.log(width)"
+            @click.stop="
+              () => router.push(`/experiments/${item.columns.id}`)
+            "
           >
             <td>
               <ul class="mobile-grid-content">

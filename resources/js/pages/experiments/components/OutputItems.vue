@@ -1,5 +1,9 @@
 <template>
-  <v-col class="form-item">
+  <v-col
+    class="form-item"
+    cols="12"
+    md="6"
+  >
     <v-row
       align="center"
       class="pl-10"
@@ -22,6 +26,7 @@
       :key="idx"
       v-model="outputItems[idx]"
       class="ml-10"
+      :density="width < 400 ? 'compact' : 'default'"
       required
       :rules="individualOutputRules"
       variant="outlined"
@@ -44,7 +49,9 @@
 import { trans } from "laravel-vue-i18n";
 import { ref, watch } from "vue";
 import { escapeCharacters } from "../utils/escapeUtils";
+import { useWindowSize } from "@vueuse/core";
 
+const { width } = useWindowSize();
 const outputItems = ref([""]);
 const emit = defineEmits(["output-change"]);
 const props = defineProps({

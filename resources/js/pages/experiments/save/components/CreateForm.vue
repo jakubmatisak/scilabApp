@@ -8,9 +8,13 @@
       fluid
     >
       <v-row>
-        <v-col class="form-item">
+        <v-col
+          cols="12"
+          sm="6"
+        >
           <v-text-field
             v-model="formState.name"
+            :density="width < 400 ? 'compact' : 'default'"
             :label="$t('ExperimentName')"
             prepend-icon="mdi-rename-outline"
             required
@@ -18,11 +22,15 @@
             variant="outlined"
           />
         </v-col>
-        <v-col class="form-item">
+        <v-col
+          cols="12"
+          sm="6"
+        >
           <v-file-input
             v-model="formState.file"
             accept=".zcos"
             chips
+            :density="width < 400 ? 'compact' : 'default'"
             :label="$t('ExperimentSchema')"
             required
             :rules="fileRules"
@@ -37,10 +45,16 @@
         </v-col>
       </v-row>
       <v-tabs v-model="tab">
-        <v-tab value="individual">
+        <v-tab
+          :size="width < 500 ? 'small' : 'default'"
+          value="individual"
+        >
           {{ $t("ExperimentIndividualItems") }}
         </v-tab>
-        <v-tab value="object">
+        <v-tab
+          :size="width < 500 ? 'small' : 'default'"
+          value="object"
+        >
           {{ $t("ExperimentObjects") }}
         </v-tab>
       </v-tabs>
@@ -60,18 +74,26 @@
 
         <v-window-item value="object">
           <v-row class="mt-2">
-            <v-col class="form-item">
+            <v-col
+              cols="12"
+              sm="6"
+            >
               <v-textarea
                 v-model="formState.input"
+                :density="width < 400 ? 'compact' : 'default'"
                 :label="$t('ExperimentContext')"
                 prepend-icon="mdi-code-json"
                 :rules="inputRules"
                 variant="outlined"
               />
             </v-col>
-            <v-col class="form-item">
+            <v-col
+              cols="12"
+              sm="6"
+            >
               <v-textarea
                 v-model="formState.output"
+                :density="width < 400 ? 'compact' : 'default'"
                 :label="$t('ExperimentOutput')"
                 prepend-icon="mdi-code-brackets"
                 :rules="outputRules"
@@ -90,7 +112,7 @@
         <v-spacer />
         <v-col class="no-grow pb-0">
           <v-btn
-            :size="width < 650 ? 'small' : 'default'"
+            :size="width < 600 ? 'small' : 'default'"
             variant="elevated"
             @click="onSimulateClicked"
           >
@@ -99,7 +121,7 @@
         </v-col>
         <v-col class="no-grow">
           <v-btn
-            :size="width < 650 ? 'small' : 'default'"
+            :size="width < 600 ? 'small' : 'default'"
             variant="elevated"
             @click="onSaveClicked"
           >
@@ -113,7 +135,7 @@
         justify="end"
       >
         <v-btn
-          :size="width < 650 ? 'small' : 'default'"
+          :size="width < 400 ? 'small' : 'default'"
           variant="elevated"
           @click="onSimulateClicked"
         >
@@ -278,8 +300,6 @@ const createExperiment = async (isSave) => {
 
 <style lang="scss">
 .form-item {
-    min-width: 400px;
-
     :deep(.v-field__input) {
         padding: 8px 16px;
     }

@@ -50,32 +50,30 @@
       />
     </template>
     <v-card-text>
-      <v-container fluid>
-        <div class="d-flex">
-          <div class="text-md-h4 text-sm-h5">
-            {{ data?.experiment?.name }}
-          </div>
-          <v-spacer />
-          <div class="text-md-h5 text-sm-h6">
-            <span class="font-weight-thin">{{ $t("By") }}:</span>
-            <span>{{
-              user?.user?.name || data?.experiment?.created_by
-            }}</span>
-          </div>
+      <v-row dense>
+        <div class="text-md-h4 text-sm-h5">
+          {{ data?.experiment?.name }}
         </div>
-        <v-divider />
-        <simulate-form
-          :context="data?.experiment?.context || ''"
+        <v-spacer />
+        <div class="text-md-h5 text-sm-h6">
+          <span class="font-weight-bold">{{ $t("By") }}:</span>
+          <span>{{
+            user?.user?.name || data?.experiment?.created_by
+          }}</span>
+        </div>
+      </v-row>
+      <v-divider />
+      <simulate-form
+        :context="data?.experiment?.context || ''"
+        :loading="isPendingSimulation"
+        :submit="handleSubmit"
+      />
+      <div class="pt-2">
+        <graph-component
+          :data="graphData"
           :loading="isPendingSimulation"
-          :submit="handleSubmit"
         />
-        <v-container fluid>
-          <graph-component
-            :data="graphData"
-            :loading="isPendingSimulation"
-          />
-        </v-container>
-      </v-container>
+      </div>
     </v-card-text>
   </v-card>
 </template>
@@ -92,7 +90,7 @@ import {
 import { useUserDetailMutation } from "@/api/queries/userQueries";
 import { useNotificationStore } from "@/stores/NotificationService";
 import HeaderComponent from "../components/HeaderComponent.vue";
-import GraphComponent from "../components/GraphComponent.vue";
+import GraphComponent from "../components/graph/GraphComponent.vue";
 import { useAuthStore } from "@/stores/Auth";
 import { storeToRefs } from "pinia";
 import SimulateForm from "./components/SimulateForm.vue";
