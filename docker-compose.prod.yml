@@ -38,7 +38,8 @@ services:
   phpmyadmin:
     image: phpmyadmin/phpmyadmin:5-fpm-alpine
     environment:
-      PMA_HOST: mysql
+      PMA_HOST: database
+      PMA_ABSOLUTE_URI: "${APP_URL}/phpmyadmin"
     volumes:
       - phpmyadmindata:/var/www/html
     depends_on:
