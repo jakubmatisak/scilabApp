@@ -83,8 +83,6 @@ import { transformDataToCSVContent } from "./utils";
 import { useWindowSize } from "@vueuse/core";
 
 const { height } = useWindowSize();
-console.log(height);
-
 const props = defineProps({
     data: {
         type: Array,
@@ -166,7 +164,6 @@ const options = computed(() => ({
 
 const onExportCSVClick = () => {
     const csvData = transformDataToCSVContent(props.data, true);
-    console.log(csvData);
     const blob = new Blob([csvData], { type: "text/csv;charset=utf-8" });
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
