@@ -160,11 +160,12 @@ import OutputItems from "../../components/OutputItems.vue";
 import InputItems from "../../components/InputItems.vue";
 import { useWindowSize } from "@vueuse/core";
 import { useNotificationStore } from "@/stores/NotificationService";
-import { useRoute } from "vue-router";
+import { useRoute, useRouter } from "vue-router";
 
 const { width } = useWindowSize();
 const { showSnackbar } = useNotificationStore();
 const tab = ref(null);
+const router = useRouter();
 const props = defineProps({
     loading: {
         type: Boolean,
@@ -263,11 +264,12 @@ const createExperiment = async (isSave) => {
     const { valid: isValid } = await form.value.validate();
     if (isValid) {
         try {
+            console.log(formState.file);
             emit("simulation-data-change", { data: { simulation: [] } });
             const { data } = await props.saveExperiment({
                 id: route.params.id,
                 name: formState.name,
-                file: formState.file && formState.file[0] || undefined,
+                file: formState.file || undefined,
                 context: formState.input,
                 output: formState.output,
                 save: isSave,
@@ -278,14 +280,19 @@ const createExperiment = async (isSave) => {
                 : trans("ExperimentCreateSuccess");
             showSnackbar(snackbarMessage, "success");
 
+            if (isSave) {
+                resetFormDefaultValues();
+                form.value.resetValidation();
+                router.push(`/experiments/${data.experiment.id}`);
+                return;
+            }
+
+            showSnackbar(trans("ExperimentSimulationSuccess"), "success");
+
             if (data.simulation.length == 0) {
                 showSnackbar(trans("ExperimentSimulationError"), "error");
             }
 
-            if (isSave) {
-                resetFormDefaultValues();
-                form.value.resetValidation();
-            }
             emit("simulation-data-change", { data });
         } catch (err) {
             console.log(err);

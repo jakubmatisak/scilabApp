@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Experiment;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
@@ -225,6 +226,8 @@ class ExperimentController extends Controller
                 'output' => $request->input('output'),
                 'created_by' => auth()->id(),
             ]);
+            
+            return response()->json(["experiment"=>$experiment], 201);
         }
 
         $output_values = json_decode($request->input('output'));
@@ -236,7 +239,7 @@ class ExperimentController extends Controller
             Storage::delete($filePath);
         }
 
-        return response()->json(["simulation"=>$result_array], 201);
+        return response()->json(["simulation"=>$result_array], 200);
     }
 
     /**
@@ -478,8 +481,9 @@ class ExperimentController extends Controller
         try {
             $experiment = Experiment::findOrFail($id);
             $userId = auth()->id();
+            $user = User::findOrFail($userId);
 
-            if ($userId != $experiment->created_by) {
+            if ($userId != $experiment->created_by && $user->is_admin != true) {
                 return response()->json(["message"=>"You don't have permission to edit this experiment."], 403);
             }
 
@@ -584,8 +588,16 @@ class ExperimentController extends Controller
         if(!$id){
             return response()->json(["message"=>"Invalid id."], 400);
         }
+
         try{
             $experiment = Experiment::findOrFail($id);
+            $userId = auth()->id();
+            $user = User::findOrFail($userId);
+
+            if ($userId != $experiment->created_by && $user->is_admin != true) {
+                return response()->json(["message"=>"You don't have permission to remove this experiment."], 403);
+            }
+
             $filePath = $experiment->file_path;
 
             try{
@@ -724,7 +736,7 @@ class ExperimentController extends Controller
 
             $result_array = ExperimentService::simulateExperiment($input_values, $output_values, $filePath);
 
-            return response()->json(["simulation"=>$result_array], 201);
+            return response()->json(["simulation"=>$result_array], 200);
         } catch(\Exception $_){
             return response()->json(["message"=>"There is no experiment with that id."], 404);
         }
