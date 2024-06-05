@@ -651,8 +651,8 @@ class ExperimentController extends Controller
      *         )
      *      ),
      *      @OA\Response(
-     *          response=201,
-     *          description="Experiment created successfully",
+     *          response=200,
+     *          description="Experiment simulated successfully",
      *          @OA\JsonContent(
      *              type="object",
      *              @OA\Property(
@@ -739,6 +739,103 @@ class ExperimentController extends Controller
             return response()->json(["simulation"=>$result_array], 200);
         } catch(\Exception $_){
             return response()->json(["message"=>"There is no experiment with that id."], 404);
+        }
+    }
+
+    /**
+     *  @OA\Post(
+     *      path="/api/experiments/get_context",
+     *      tags={"Experiments"},
+     *      summary="Returns simulation context",
+     *      description="Get simulation context from simulation scheme",
+     *      security={{"bearerAuth": {}}},
+     *      @OA\RequestBody(
+     *         required=true,
+     *         @OA\MediaType(
+     *              mediaType="multipart/form-data",
+     *              @OA\Schema(
+     *                  type="object",
+     *                  required={"file"},
+     *                  @OA\Property(property="file", type="string", format="binary", description="Experiment file"),
+     *              ),
+     *         ),
+     *      ),
+     *      @OA\Parameter(
+     *         name="Accept",
+     *         in="header",
+     *         required=true,
+     *         description="Authentication token",
+     *         @OA\Schema(
+     *             type="string",
+     *             default="application/json"
+     *         )
+     *      ),
+     *      @OA\Response(
+     *          response=200,
+     *          description="Experiment schema get successfully",
+     *          @OA\JsonContent(
+     *              type="object",
+     *              @OA\Property(
+     *                  property="context",
+     *                  type="object",
+     *                  @OA\Property(
+     *                      property="H",
+     *                      type="string",
+     *                      example="40"
+     *                  ),
+     *                  @OA\Property(
+     *                      property="P",
+     *                      type="string",
+     *                      example="80"
+     *                  ),
+     *                  @OA\Property(
+     *                      property="endtime",
+     *                      type="string",
+     *                      example="15"
+     *                  )
+     *              )
+     *          )
+     *      ),
+     *      @OA\Response(
+     *          response="400",
+     *          description="Invalid input",
+     *          @OA\JsonContent(
+     *              type="object",
+     *              @OA\Property(
+     *                  property="errors",
+     *                  type="object",
+     *                  @OA\Property(
+     *                      property="file",
+     *                      type="array",
+     *                      @OA\Items(
+     *                          type="string",
+     *                          example="The file field is required."
+     *                      )
+     *                  )
+     *              ),
+     *          )
+     *      )
+     * )
+     */
+    public function getContext(Request $request) {
+        $validator = Validator::make($request->all(), [
+            'file' => 'required|file',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json(['errors' => $validator->errors()], 400);
+        }
+
+        try {
+            $file = $request->file('file');
+            $originalFileName = $file->getClientOriginalName();
+            $fileName = time().'_'.$originalFileName;
+            $filePath = $file->storeAs('experiment_files', $fileName);
+            $context = ExperimentService::getSimulationContext($filePath);
+            Storage::delete($filePath);
+            return response()->json(['context' => $context], 200);
+        } catch(\Exception $e){
+            return response()->json(["message"=>$e->getMessage()], 500);
         }
     }
 }

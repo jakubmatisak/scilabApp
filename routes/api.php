@@ -21,10 +21,11 @@ Route::post('/auth/register', [AuthController::class, 'createUser']);
 Route::post('/auth/login', [AuthController::class, 'loginUser']);
 
 Route::middleware(['auth:sanctum', 'token.refresh'])->group(function () {
+    Route::post('experiments/get_context', [ExperimentController::class, 'getContext']);
     Route::resource('experiments', ExperimentController::class)->except([
         'create', 'edit', 'update'
     ]);
-
+    
     Route::get('experiments/{id}/schemas', [ExperimentController::class, 'getSchemaFile']);
     Route::delete('experiments/{id}', [ExperimentController::class, 'destroy']);
     Route::post('experiments/{id}/simulate', [ExperimentController::class, 'simulate']);
