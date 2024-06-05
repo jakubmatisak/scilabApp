@@ -93,6 +93,26 @@ const experimentDestroy = async (id) => {
     }
 };
 
+const experimentContext = async (file) => {
+    const url = "/experiments/get_context";
+    const formData = new FormData();
+    formData.append("file", file);
+
+    try {
+        const data = await api.post(url, formData, {
+            headers: {
+                "Content-Type": "multipart/form-data",
+            },
+        });
+
+        return data;
+    } catch (err) {
+        console.error(err.message);
+
+        return err;
+    }
+};
+
 export const useExperimentsListMutation = () =>
     useMutation({ mutationFn: experimentsList });
 export const useExperimentSaveMutation = () =>
@@ -103,3 +123,5 @@ export const useExperimentSimulateMutation = () =>
     useMutation({ mutationFn: experimentSimulate });
 export const useExperimentDestroyMutation = () =>
     useMutation({ mutationFn: experimentDestroy });
+export const useExperimentContextMutation = () =>
+    useMutation({ mutationFn: experimentContext });

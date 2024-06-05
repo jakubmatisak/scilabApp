@@ -12,6 +12,12 @@
       </v-app-bar-title>
     </template>
     <template #append>
+      <v-btn
+        color="primary"
+        density="compact"
+        icon="mdi-api"
+        @click="onApiClick"
+      />
       <theme-toggle />
       <language-menu />
     </template>
@@ -23,4 +29,8 @@ import LanguageMenu from "./LanguageMenu.vue";
 import ThemeToggle from "./ThemeToggle.vue";
 
 const emit = defineEmits(["toggle"]);
+const onApiClick = () => {
+    const apiDocumentationUrl = import.meta.env.VITE_API_URL + "documentation";
+    window.open(apiDocumentationUrl, "_blank");
+};
 </script>

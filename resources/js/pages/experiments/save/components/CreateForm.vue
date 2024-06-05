@@ -35,6 +35,7 @@
             required
             :rules="fileRules"
             variant="outlined"
+            @update:model-value="getSimulationContext"
           />
           <div
             v-if="file"
@@ -44,7 +45,17 @@
           </div>
         </v-col>
       </v-row>
-      <v-tabs v-model="tab">
+      <div v-if="isPending">
+        <v-skeleton-loader
+          class="mb-4"
+          :elevation="4"
+          type="card"
+        />
+      </div>
+      <v-tabs
+        v-else
+        v-model="tab"
+      >
         <v-tab
           :size="width < 500 ? 'small' : 'default'"
           value="individual"
@@ -58,7 +69,10 @@
           {{ $t("ExperimentObjects") }}
         </v-tab>
       </v-tabs>
-      <v-window v-model="tab">
+      <v-window
+        v-if="!isPending"
+        v-model="tab"
+      >
         <v-window-item value="individual">
           <v-row class="mt-2">
             <input-items
@@ -161,9 +175,11 @@ import InputItems from "../../components/InputItems.vue";
 import { useWindowSize } from "@vueuse/core";
 import { useNotificationStore } from "@/stores/NotificationService";
 import { useRoute, useRouter } from "vue-router";
+import { useExperimentContextMutation } from "@/api/queries/experimentQueries";
 
 const { width } = useWindowSize();
 const { showSnackbar } = useNotificationStore();
+const { isPending, mutateAsync } = useExperimentContextMutation();
 const tab = ref(null);
 const router = useRouter();
 const props = defineProps({
@@ -301,6 +317,14 @@ const createExperiment = async (isSave) => {
                 : trans("ExperimentCreateError");
             showSnackbar(snackbarMessage, "error");
         }
+    }
+};
+
+const getSimulationContext = async () => {
+    if (formState.file) {
+        const { data } = await mutateAsync(formState.file);
+        formState.input = "{}";
+        formState.input = JSON.stringify(data.context);
     }
 };
 </script>

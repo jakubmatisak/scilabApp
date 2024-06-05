@@ -808,8 +808,8 @@
                     }
                 },
                 "responses": {
-                    "201": {
-                        "description": "Experiment created successfully",
+                    "200": {
+                        "description": "Experiment simulated successfully",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -882,6 +882,108 @@
                                         "message": {
                                             "type": "string",
                                             "example": "There is no experiment with that id."
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/experiments/get_context": {
+            "post": {
+                "tags": [
+                    "Experiments"
+                ],
+                "summary": "Returns simulation context",
+                "description": "Get simulation context from simulation scheme",
+                "operationId": "68b71e21116d5fe3f56597e222e04de5",
+                "parameters": [
+                    {
+                        "name": "Accept",
+                        "in": "header",
+                        "description": "Authentication token",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "default": "application/json"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "required": [
+                                    "file"
+                                ],
+                                "properties": {
+                                    "file": {
+                                        "description": "Experiment file",
+                                        "type": "string",
+                                        "format": "binary"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Experiment schema get successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "context": {
+                                            "properties": {
+                                                "H": {
+                                                    "type": "string",
+                                                    "example": "40"
+                                                },
+                                                "P": {
+                                                    "type": "string",
+                                                    "example": "80"
+                                                },
+                                                "endtime": {
+                                                    "type": "string",
+                                                    "example": "15"
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid input",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "errors": {
+                                            "properties": {
+                                                "file": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "type": "string",
+                                                        "example": "The file field is required."
+                                                    }
+                                                }
+                                            },
+                                            "type": "object"
                                         }
                                     },
                                     "type": "object"
