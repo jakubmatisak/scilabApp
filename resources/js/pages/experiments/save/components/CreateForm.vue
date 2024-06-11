@@ -285,7 +285,7 @@ const createExperiment = async (isSave) => {
             const { data } = await props.saveExperiment({
                 id: route.params.id,
                 name: formState.name,
-                file: formState.file || undefined,
+                file: formState.file[0] || formState.file || undefined,
                 context: formState.input,
                 output: formState.output,
                 save: isSave,
@@ -322,7 +322,7 @@ const createExperiment = async (isSave) => {
 
 const getSimulationContext = async () => {
     if (formState.file) {
-        const { data } = await mutateAsync(formState.file);
+        const { data } = await mutateAsync(formState.file[0] || formState.file);
         formState.input = "{}";
         formState.input = JSON.stringify(data.context);
     }
