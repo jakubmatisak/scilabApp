@@ -48,7 +48,7 @@ const experimentSave = async (experimentData) => {
     } catch (err) {
         console.error(err.message);
 
-        return err;
+        throw err;
     }
 };
 
@@ -74,8 +74,8 @@ const experimentSimulate = async ({ id, context }) => {
         return data;
     } catch (err) {
         console.error(err.message);
-
-        return err;
+        
+        throw err;
     }
 };
 
