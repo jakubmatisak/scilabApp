@@ -151,7 +151,7 @@
         <v-btn
           :size="width < 400 ? 'small' : 'default'"
           variant="elevated"
-          @click="onSimulateClicked"
+          @click="onSaveClicked"
         >
           {{ $t("SaveExperiment") }}
         </v-btn>
@@ -189,7 +189,7 @@ const props = defineProps({
     },
     experiment: {
         type: Object,
-        default: undefined,
+        default: null,
     },
     saveExperiment: {
         type: Function,
@@ -202,7 +202,7 @@ const isEditView = ref(route.path.includes("edit"));
 const form = ref(null);
 const formState = reactive({
     name: "",
-    file: undefined,
+    file: null,
     output: "[]",
     input: "{}",
 });
@@ -280,12 +280,11 @@ const createExperiment = async (isSave) => {
     const { valid: isValid } = await form.value.validate();
     if (isValid) {
         try {
-            console.log(formState.file);
             emit("simulation-data-change", { data: { simulation: [] } });
             const { data } = await props.saveExperiment({
                 id: route.params.id,
                 name: formState.name,
-                file: formState.file[0] || formState.file || undefined,
+                file: formState?.file?.[0] ?? formState?.file ?? null,
                 context: formState.input,
                 output: formState.output,
                 save: isSave,
@@ -299,7 +298,7 @@ const createExperiment = async (isSave) => {
             if (isSave) {
                 resetFormDefaultValues();
                 form.value.resetValidation();
-                router.push(`/experiments/${data.experiment.id}`);
+                router.push(`/experiments/${data.experiment?.id ?? route.params.id}`);
                 return;
             }
 
