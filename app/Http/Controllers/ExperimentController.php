@@ -725,11 +725,9 @@ class ExperimentController extends Controller
             return response()->json(['errors' => $validator->errors()], 400);
         }
 
-        $experiment = "";
+        $experiment = Experiment::findOrFail($id);
         
         try{
-            $experiment = Experiment::findOrFail($id);
-
             $output_values = json_decode($experiment->output);
             $input_values = json_decode($request->input('context'));
             $filePath = $experiment->file_path;
@@ -738,7 +736,8 @@ class ExperimentController extends Controller
 
             return response()->json(["simulation"=>$result_array], 200);
         } catch(\Exception $_){
-            return response()->json(["message"=>"There is no experiment with that id."], 404);
+            // FIXME: any error triggers 404
+            return response()->json(["message"=>"Error during simulation occurred."], 500);
         }
     }
 
