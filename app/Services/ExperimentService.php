@@ -68,6 +68,7 @@ class ExperimentService
             $line = preg_replace("/^!/", "", $line);
             $line = preg_replace("/!$/", "", $line);
             $line = trim($line);
+            $line = preg_replace("/\s+/", " ", $line);
             $result[$idx] = $line;
         }
 
