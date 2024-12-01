@@ -68,7 +68,7 @@ const props = defineProps({
         required: true,
     },
     context: {
-        type: Array,
+        type: String,
         required: true,
     },
     loading: {
@@ -81,7 +81,7 @@ const { width } = useWindowSize();
 const form = ref(null);
 const tab = ref(null);
 const formState = reactive({
-    input: "{}",
+    input: "[]",
 });
 
 watch(props, () => {

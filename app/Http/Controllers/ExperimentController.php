@@ -506,7 +506,7 @@ class ExperimentController extends Controller
             $originalFileName = $experiment->file_name;
             $filePath = $experiment->file_path;
             $name = $request->input('name', $experiment->name);
-            $context = $request->input('context', $experiment->context);
+            $inputContext = json_decode($request->input('context'), true);
             $output = $request->input('output', $experiment->output);
 
             if ($request->has('file')) {
@@ -522,14 +522,17 @@ class ExperimentController extends Controller
                 'file_name' => $originalFileName,
                 'file_path' => $filePath,
                 'name' => $name,
-                'context' => $context,
+                'context' => ['data' => $inputContext],
                 'output' => $output,
             ]);
 
             $output_values = json_decode($output);
-            $input_values = json_decode($context);
+            $input_values = collect($inputContext)
+                ->sortBy('order')
+                ->mapWithKeys(fn($item) => [$item['key'] => $item['value']])
+                ->toArray();
 
-            $result_array = ExperimentService::simulateExperiment($input_values, $output_values, $filePath);
+            $result_array = ExperimentService::simulateExperiment((object)$input_values, $output_values, $filePath);
 
             return response()->json(["simulation"=>$result_array], 201);
 

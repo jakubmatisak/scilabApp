@@ -112,6 +112,7 @@
 import { trans } from "laravel-vue-i18n";
 import { computed, ref, watch } from "vue";
 import { isMatlabVectorCharacters } from "@/utils/formRules";
+import { escapeCharacters } from "../utils/escapeUtils";
 import { useWindowSize } from "@vueuse/core";
 import { useRoute } from "vue-router";
 
@@ -131,7 +132,13 @@ const isCreateForm = computed(
 
 watch(props.formState, (newProps, _) => {    
     try {
-        const inputObject = newProps.input;
+        const inputObject = JSON.parse(newProps.input);
+
+        const tmpInputs = [];
+        for (let i = 0; i < inputObject.length; i++) {
+            tmpInputs.push({ key: inputObject[i]['key'], value: inputObject[i]['value'], order: inputObject[i]['order'] });
+        }
+
         if (inputObject.length === 0) {
             inputItems.value = [{ key: "", value: "", order: 0 }];
         } else {
@@ -143,7 +150,19 @@ watch(props.formState, (newProps, _) => {
 });
 
 const onInputItemsChange = (_) => {    
-    emit("input-change", inputItems.value);
+    let input = "[";
+    for (let i = 0; i < inputItems.value.length; i++) {
+        if (i !== 0) {
+            input += ", ";
+        }
+        input += `{`;
+        input += `"key":"${escapeCharacters( inputItems.value[i].key )}",`;
+        input += `"value":"${escapeCharacters(inputItems.value[i].value)}",`;
+        input += `"order":${escapeCharacters(inputItems.value[i].order)}`;
+        input += `}`;
+    }
+    input += "]";
+    emit("input-change", input);
 };
 
 const addInputItem = () => {

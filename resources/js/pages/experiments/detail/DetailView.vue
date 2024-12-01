@@ -70,7 +70,7 @@
       </v-row>
       <v-divider />
       <simulate-form
-        :context="data?.experiment?.context['data'] || []"
+        :context="JSON.stringify(data?.experiment?.context['data']) || '[]'"
         :loading="isPendingSimulation"
         :submit="handleSubmit"
       />
@@ -142,7 +142,7 @@ const loadExperiment = (experimentId) => {
 const handleSubmit = async (context) => {
     try {
         const { simulation } = await simulate({
-            context: JSON.stringify(context),
+            context,
             id: route.params.id,
         });
 
