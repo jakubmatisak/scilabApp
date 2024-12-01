@@ -4,14 +4,24 @@ namespace App\Services;
 
 class ExperimentService
 {
+    private static function convertToContextAware($equation) {
+        return preg_replace_callback('/\b(?!Context\.)([a-zA-Z_]\w*)\b/', function ($matches) {
+            return "Context." . $matches[1];
+        }, $equation);
+    }
+
     public static function simulateExperiment(object $contextValues, array $outputValues, string $filePath) {
         $context = "";
         foreach ($contextValues as $key => $value) {
-            $context .= "Context.{$key}={$value};";
+            if (is_numeric($value)) {
+                $context .= "Context.{$key}={$value};";
+            } else {
+                $context .= "Context.{$key}=" . ExperimentService::convertToContextAware($value) . ";";
+            }
         }
 
         $script = "SCRIPT=\"loadXcosLibs();loadScicos();importXcosDiagram('/var/www/scilabApp/storage/app/" . $filePath . "');Context=struct();" . $context . "scicos_simulate(scs_m,list(),Context,'nw');\" /var/www/scilabApp/docker/run-script.sh";
-        
+
         $result = shell_exec($script);
 
         $result = explode("\n", $result);
