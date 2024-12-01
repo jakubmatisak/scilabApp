@@ -68,7 +68,7 @@ const props = defineProps({
         required: true,
     },
     context: {
-        type: String,
+        type: Array,
         required: true,
     },
     loading: {

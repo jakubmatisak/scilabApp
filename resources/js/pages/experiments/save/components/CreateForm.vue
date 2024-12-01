@@ -204,7 +204,7 @@ const formState = reactive({
     name: "",
     file: null,
     output: "[]",
-    input: "{}",
+    input: [],
 });
 const file = ref("");
 
@@ -229,7 +229,7 @@ const resetFormDefaultValues = () => {
     formState.name = "";
     formState.file = undefined;
     formState.output = "[]";
-    formState.input = "{}";
+    formState.input = [];
 };
 
 const changeOutputItems = (output) => {
@@ -285,7 +285,7 @@ const createExperiment = async (isSave) => {
                 id: route.params.id,
                 name: formState.name,
                 file: formState?.file?.[0] ?? formState?.file ?? null,
-                context: formState.input,
+                context: JSON.stringify(formState.input),
                 output: formState.output,
                 save: isSave,
             });
@@ -322,8 +322,14 @@ const createExperiment = async (isSave) => {
 const getSimulationContext = async () => {
     if (formState.file) {
         const { data } = await mutateAsync(formState.file[0] || formState.file);
-        formState.input = "{}";
-        formState.input = JSON.stringify(data.context);
+
+        const remapped_array = Object.entries(data.context).map(([key, value], index) => ({
+            key,
+            value,
+            order: index + 1
+        }));
+        
+        formState.input = remapped_array;
     }
 };
 </script>

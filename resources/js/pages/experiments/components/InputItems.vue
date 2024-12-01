@@ -112,12 +112,11 @@
 import { trans } from "laravel-vue-i18n";
 import { computed, ref, watch } from "vue";
 import { isMatlabVectorCharacters } from "@/utils/formRules";
-import { escapeCharacters } from "../utils/escapeUtils";
 import { useWindowSize } from "@vueuse/core";
 import { useRoute } from "vue-router";
 
 const { width } = useWindowSize();
-const inputItems = ref([{ key: "", value: "" }]);
+const inputItems = ref([{ key: "", value: "", order: 0 }]);
 const emit = defineEmits(["input-change"]);
 const props = defineProps({
     formState: {
@@ -130,43 +129,26 @@ const isCreateForm = computed(
     () => route.path.includes("edit") || route.path.includes("add")
 );
 
-watch(props.formState, (newProps, _) => {
+watch(props.formState, (newProps, _) => {    
     try {
-        const inputObject = JSON.parse(newProps.input);
-        const keys = Object.keys(inputObject);
-        const values = Object.values(inputObject);
-
-        const tmpInputs = [];
-        for (let i = 0; i < keys.length; i++) {
-            tmpInputs.push({ key: keys[i], value: values[i] });
-        }
-
-        if (tmpInputs.length === 0) {
-            inputItems.value = [{ key: "", value: "" }];
+        const inputObject = newProps.input;
+        if (inputObject.length === 0) {
+            inputItems.value = [{ key: "", value: "", order: 0 }];
         } else {
-            inputItems.value = tmpInputs;
+            inputItems.value = inputObject;
         }
     } catch (e) {
-        inputItems.value = [{ key: "", value: "" }];
+        inputItems.value = [{ key: "", value: "", order: 0 }];
     }
 });
 
-const onInputItemsChange = (_) => {
-    let input = "{";
-    for (let i = 0; i < inputItems.value.length; i++) {
-        if (i !== 0) {
-            input += ", ";
-        }
-        input += `"${escapeCharacters(
-            inputItems.value[i].key
-        )}": "${escapeCharacters(inputItems.value[i].value)}"`;
-    }
-    input += "}";
-    emit("input-change", JSON.stringify(JSON.parse(input)));
+const onInputItemsChange = (_) => {    
+    emit("input-change", inputItems.value);
 };
 
 const addInputItem = () => {
-    inputItems.value.push({ key: "", value: "" });
+    // .length might not work in some cases
+    inputItems.value.push({ key: "", value: "", order: inputItems.value.length });
     onInputItemsChange();
 };
 
