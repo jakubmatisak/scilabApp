@@ -169,7 +169,7 @@ class ExperimentService
 
                 if ((time() - $startTime) > $timeoutInSeconds) {
                     proc_terminate($process);
-                    throw new \RuntimeException("Process timed out after {$timeoutInSeconds} seconds.");
+                    return ['stdout' => $stdout, 'stderr' => "Process timed out after {$timeoutInSeconds} seconds, error stack: " . $stderr];
                 }
                 usleep(250000);
             }
