@@ -35,7 +35,7 @@ class ExperimentService
 
                 if (empty($execResult['stderr'])) {
                     $result = $execResult['stdout'];
-                    Log::info("SIM: simulation [" . $attempt . "] done, result:", ['length' => strlen($result)]);
+                    Log::info("SIM: simulation [" . $attempt . "] done, result:", ['length' => strlen($result), 'execTime' => $execResult['execTime']]);
                     break;
                 }
                 Log::error("SIM: simulation [" . $attempt . "/" . $maxRetries . "] has error output: ", ['error' => $execResult['stderr']]);
@@ -184,6 +184,6 @@ class ExperimentService
             }
             proc_close($process);
         }
-        return ['stdout' => $stdout, 'stderr' => $stderr];
+        return ['stdout' => $stdout, 'stderr' => $stderr, 'execTime' => (time() - $startTime)];
     }
 }
