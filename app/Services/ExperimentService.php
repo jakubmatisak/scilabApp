@@ -2,6 +2,9 @@
 
 namespace App\Services;
 
+use Symfony\Component\HttpKernel\Exception\HttpException;
+use Illuminate\Support\Facades\Log;
+
 class ExperimentService
 {
     private static function convertToContextAware($equation) {
@@ -19,10 +22,34 @@ class ExperimentService
                 $context .= "Context.{$key}=" . ExperimentService::convertToContextAware($value) . ";";
             }
         }
+        Log::info("SIM: preparing simulation with:", ['context' => $context]);
 
         $script = "SCRIPT=\"loadXcosLibs();loadScicos();importXcosDiagram('/var/www/scilabApp/storage/app/" . $filePath . "');Context=struct();" . $context . "scicos_simulate(scs_m,list(),Context,'nw');\" /var/www/scilabApp/docker/run-script.sh";
+        $timeout = 6;
+        $maxRetries = 3;
+        $result = "";
 
-        $result = shell_exec($script);
+        for ($attempt = 1; $attempt <= $maxRetries; $attempt++) {
+            try {
+                $execResult = ExperimentService::executeWithTimeout($script, $timeout);
+
+                if (empty($execResult['stderr'])) {
+                    $result = $execResult['stdout'];
+                    Log::info("SIM: simulation [" . $attempt . "] done, result:", ['length' => strlen($result)]);
+                    break;
+                }
+                Log::error("SIM: simulation [" . $attempt . "/" . $maxRetries . "] has error output: ", ['error' => $execResult['stderr']]);
+
+            } catch (\Exception $e) {
+                Log::error("SIM: simulation failed with exception: " . $e->getMessage());
+                throw new HttpException(500, 'Simulation execution failed');
+            }
+        }
+
+        if ($result == "") {
+            Log::error("SIM: ending unsuccessful simulation");
+            throw new HttpException(500, 'Simulation execution failed');
+        }
 
         $result = explode("\n", $result);
         while (!preg_match('/\d/', $result[0])) {
@@ -53,6 +80,7 @@ class ExperimentService
                 array_push($result_array, $values);
             }
         }
+        Log::info("SIM: simulation processed - END");
 
         return count($result_array) > 1 ? $result_array : [];
     }
@@ -107,5 +135,55 @@ class ExperimentService
         }
 
         return $result;
+    }
+
+    public static function executeWithTimeout(string $command, int $timeoutInSeconds): array
+    {
+        $descriptors = [
+            0 => ["pipe", "r"],
+            1 => ["pipe", "w"],
+            2 => ["pipe", "w"],
+        ];
+
+        $process = proc_open($command, $descriptors, $pipes);
+
+        if (!is_resource($process)) {
+            throw new \RuntimeException("Failed to start the process.");
+        }
+
+        $startTime = time();
+        $stdout = '';
+        $stderr = '';
+
+        stream_set_blocking($pipes[1], false);
+        stream_set_blocking($pipes[2], false);
+
+        try {
+            while (true) {
+                $status = proc_get_status($process);
+                if (!$status['running']) {
+                    break;
+                }
+                $stdout .= stream_get_contents($pipes[1]);
+                $stderr .= stream_get_contents($pipes[2]);
+
+                if ((time() - $startTime) > $timeoutInSeconds) {
+                    proc_terminate($process);
+                    throw new \RuntimeException("Process timed out after {$timeoutInSeconds} seconds.");
+                }
+                usleep(250000);
+            }
+            $stdout .= stream_get_contents($pipes[1]);
+            $stderr .= stream_get_contents($pipes[2]);
+
+        } finally {
+            foreach ($pipes as $pipe) {
+                if (is_resource($pipe)) {
+                    fclose($pipe);
+                }
+            }
+            proc_close($process);
+        }
+        return ['stdout' => $stdout, 'stderr' => $stderr];
     }
 }
