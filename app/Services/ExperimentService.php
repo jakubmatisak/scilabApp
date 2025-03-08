@@ -98,6 +98,7 @@ class ExperimentService
                 if (empty($execResult['stderr'])) {
                     $result = $execResult['stdout'];
                     Log::info("G-CONTEXT: try [" . $attempt . "] done, result:", ['length' => strlen($result), 'execTime' => $execResult['execTime']]);
+                    break;
                 }
                 Log::warning("G-CONTEXT: try [" . $attempt . "/" . $maxRetries . "] has error output: ", ['error' => $execResult['stderr']]);
 
