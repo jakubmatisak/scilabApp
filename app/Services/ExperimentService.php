@@ -87,7 +87,30 @@ class ExperimentService
 
     public static function getSimulationContext(string $filePath) {
         $script = "SCRIPT=\"loadXcosLibs();loadScicos();importXcosDiagram('/var/www/scilabApp/storage/app/" . $filePath . "');disp(scs_m.props.context);\" /var/www/scilabApp/docker/run-script.sh";
-        $result = shell_exec($script);
+        $timeout = 8;
+        $maxRetries = 3;
+        $result = "";
+
+        for ($attempt = 1; $attempt <= $maxRetries; $attempt++) {
+            try {
+                $execResult = ExperimentService::executeWithTimeout($script, $timeout);
+
+                if (empty($execResult['stderr'])) {
+                    $result = $execResult['stdout'];
+                    Log::info("G-CONTEXT: try [" . $attempt . "] done, result:", ['length' => strlen($result), 'execTime' => $execResult['execTime']]);
+                }
+                Log::warning("G-CONTEXT: try [" . $attempt . "/" . $maxRetries . "] has error output: ", ['error' => $execResult['stderr']]);
+
+            } catch (\Exception $e) {
+                Log::error("G-CONTEXT: failed with exception: ". $e->getMessage());
+                throw new HttpException(500, 'Failed with exception');
+            }
+        }
+
+        if ($result == "") {
+            Log::error("G-CONTEXT: ending unsuccessful extraction");
+            throw new HttpException(500, 'Extraction result is empty');
+        }
 
         $result = explode("\n", $result);
         $idx = 0;
