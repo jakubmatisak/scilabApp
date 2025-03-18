@@ -245,9 +245,9 @@ const nameRules = [
 ];
 const fileRules = [
     (value) =>
-        !value ||
-        !!value.length ||
-        !!file.value ||
+        !!value ||
+        !!value?.length ||
+        !!file?.value ||
         trans("ExperimentSchemaError"),
 ];
 const outputRules = [
