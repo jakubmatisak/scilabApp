@@ -70,7 +70,7 @@
       </v-row>
       <v-divider />
       <simulate-form
-        :context="data?.experiment?.context || ''"
+        :context="JSON.stringify(data?.experiment?.context['data']) || '[]'"
         :loading="isPendingSimulation"
         :submit="handleSubmit"
       />

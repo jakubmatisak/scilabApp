@@ -151,7 +151,7 @@
         <v-btn
           :size="width < 400 ? 'small' : 'default'"
           variant="elevated"
-          @click="onSimulateClicked"
+          @click="onSaveClicked"
         >
           {{ $t("SaveExperiment") }}
         </v-btn>
@@ -189,7 +189,7 @@ const props = defineProps({
     },
     experiment: {
         type: Object,
-        default: undefined,
+        default: null,
     },
     saveExperiment: {
         type: Function,
@@ -202,9 +202,9 @@ const isEditView = ref(route.path.includes("edit"));
 const form = ref(null);
 const formState = reactive({
     name: "",
-    file: undefined,
+    file: null,
     output: "[]",
-    input: "{}",
+    input: "[]",
 });
 const file = ref("");
 
@@ -217,7 +217,7 @@ watch(route, () => {
 watch(props, () => {
     if (props.experiment && props.loading === false) {
         const { context, name, output, file_name } = props.experiment;
-        formState.input = context;
+        formState.input = JSON.stringify(context['data']);
         formState.output = output;
         formState.name = name;
         file.value = file_name;
@@ -229,7 +229,7 @@ const resetFormDefaultValues = () => {
     formState.name = "";
     formState.file = undefined;
     formState.output = "[]";
-    formState.input = "{}";
+    formState.input = "[]";
 };
 
 const changeOutputItems = (output) => {
@@ -245,9 +245,9 @@ const nameRules = [
 ];
 const fileRules = [
     (value) =>
-        !value ||
-        !!value.length ||
-        !!file.value ||
+        !!value ||
+        !!value?.length ||
+        !!file?.value ||
         trans("ExperimentSchemaError"),
 ];
 const outputRules = [
@@ -280,12 +280,11 @@ const createExperiment = async (isSave) => {
     const { valid: isValid } = await form.value.validate();
     if (isValid) {
         try {
-            console.log(formState.file);
             emit("simulation-data-change", { data: { simulation: [] } });
             const { data } = await props.saveExperiment({
                 id: route.params.id,
                 name: formState.name,
-                file: formState.file[0] || formState.file || undefined,
+                file: formState?.file?.[0] ?? formState?.file ?? null,
                 context: formState.input,
                 output: formState.output,
                 save: isSave,
@@ -299,7 +298,7 @@ const createExperiment = async (isSave) => {
             if (isSave) {
                 resetFormDefaultValues();
                 form.value.resetValidation();
-                router.push(`/experiments/${data.experiment.id}`);
+                router.push(`/experiments/${data.experiment?.id ?? route.params.id}`);
                 return;
             }
 
@@ -323,8 +322,14 @@ const createExperiment = async (isSave) => {
 const getSimulationContext = async () => {
     if (formState.file) {
         const { data } = await mutateAsync(formState.file[0] || formState.file);
-        formState.input = "{}";
-        formState.input = JSON.stringify(data.context);
+
+        const remapped_array = Object.entries(data.context).map(([key, value], index) => ({
+            key,
+            value,
+            order: index + 1
+        }));
+        
+        formState.input = JSON.stringify(remapped_array);
     }
 };
 </script>

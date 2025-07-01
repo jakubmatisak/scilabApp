@@ -81,7 +81,7 @@ const { width } = useWindowSize();
 const form = ref(null);
 const tab = ref(null);
 const formState = reactive({
-    input: "{}",
+    input: "[]",
 });
 
 watch(props, () => {

@@ -9,6 +9,10 @@ class Experiment extends Model
 {
     use HasFactory;
 
+    protected $casts = [
+        'context' => 'array',
+    ];
+
     protected $fillable = [
         'file_name', 'name', 'context', 'output', 'created_by', 'file_path'
     ];

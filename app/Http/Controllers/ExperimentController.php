@@ -196,7 +196,7 @@ class ExperimentController extends Controller
         $validator = Validator::make($request->all(), [
             'file' => 'required|file',
             'name' => 'string',
-            'context' => 'required|json',
+            'context' => 'required',
             'output' => 'required|json',
             'save' => 'string',
         ]);
@@ -216,13 +216,14 @@ class ExperimentController extends Controller
         $originalFileName = $file->getClientOriginalName();
         $fileName = time().'_'.$originalFileName;
         $filePath = $file->storeAs('experiment_files', $fileName);
+        $inputContext = json_decode($request->input('context'), true);
 
         if($save){
             $experiment = Experiment::create([
                 'file_name' => $originalFileName,
                 'file_path' => $filePath,
                 'name' => $request->input('name'),
-                'context' => $request->input('context'),
+                'context' => ['data' => $inputContext],
                 'output' => $request->input('output'),
                 'created_by' => auth()->id(),
             ]);
@@ -230,10 +231,14 @@ class ExperimentController extends Controller
             return response()->json(["experiment"=>$experiment], 201);
         }
 
+        $input_values = collect($inputContext)
+            ->sortBy('order')
+            ->mapWithKeys(fn($item) => [$item['key'] => $item['value']])
+            ->toArray();
+            
         $output_values = json_decode($request->input('output'));
-        $input_values = json_decode($request->input('context'));
 
-        $result_array = ExperimentService::simulateExperiment($input_values, $output_values, $filePath);
+        $result_array = ExperimentService::simulateExperiment((object)$input_values, $output_values, $filePath);
 
         if(!$save){
             Storage::delete($filePath);
@@ -501,7 +506,7 @@ class ExperimentController extends Controller
             $originalFileName = $experiment->file_name;
             $filePath = $experiment->file_path;
             $name = $request->input('name', $experiment->name);
-            $context = $request->input('context', $experiment->context);
+            $inputContext = json_decode($request->input('context'), true);
             $output = $request->input('output', $experiment->output);
 
             if ($request->has('file')) {
@@ -517,14 +522,17 @@ class ExperimentController extends Controller
                 'file_name' => $originalFileName,
                 'file_path' => $filePath,
                 'name' => $name,
-                'context' => $context,
+                'context' => ['data' => $inputContext],
                 'output' => $output,
             ]);
 
             $output_values = json_decode($output);
-            $input_values = json_decode($context);
+            $input_values = collect($inputContext)
+                ->sortBy('order')
+                ->mapWithKeys(fn($item) => [$item['key'] => $item['value']])
+                ->toArray();
 
-            $result_array = ExperimentService::simulateExperiment($input_values, $output_values, $filePath);
+            $result_array = ExperimentService::simulateExperiment((object)$input_values, $output_values, $filePath);
 
             return response()->json(["simulation"=>$result_array], 201);
 
@@ -725,20 +733,23 @@ class ExperimentController extends Controller
             return response()->json(['errors' => $validator->errors()], 400);
         }
 
-        $experiment = "";
+        $experiment = Experiment::findOrFail($id);
         
         try{
-            $experiment = Experiment::findOrFail($id);
-
             $output_values = json_decode($experiment->output);
-            $input_values = json_decode($request->input('context'));
+            $input_values = collect(json_decode($request->input('context'), true))
+                ->sortBy('order')
+                ->mapWithKeys(fn($item) => [$item['key'] => $item['value']])
+                ->toArray();
+
             $filePath = $experiment->file_path;
 
-            $result_array = ExperimentService::simulateExperiment($input_values, $output_values, $filePath);
+            $result_array = ExperimentService::simulateExperiment((object)$input_values, $output_values, $filePath);
 
             return response()->json(["simulation"=>$result_array], 200);
         } catch(\Exception $_){
-            return response()->json(["message"=>"There is no experiment with that id."], 404);
+            // FIXME: any error triggers 404
+            return response()->json(["message"=>"Error during simulation occurred."], 500);
         }
     }
 

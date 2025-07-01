@@ -117,7 +117,7 @@ import { useWindowSize } from "@vueuse/core";
 import { useRoute } from "vue-router";
 
 const { width } = useWindowSize();
-const inputItems = ref([{ key: "", value: "" }]);
+const inputItems = ref([{ key: "", value: "", order: 0 }]);
 const emit = defineEmits(["input-change"]);
 const props = defineProps({
     formState: {
@@ -130,43 +130,44 @@ const isCreateForm = computed(
     () => route.path.includes("edit") || route.path.includes("add")
 );
 
-watch(props.formState, (newProps, _) => {
+watch(props.formState, (newProps, _) => {    
     try {
         const inputObject = JSON.parse(newProps.input);
-        const keys = Object.keys(inputObject);
-        const values = Object.values(inputObject);
 
         const tmpInputs = [];
-        for (let i = 0; i < keys.length; i++) {
-            tmpInputs.push({ key: keys[i], value: values[i] });
+        for (let i = 0; i < inputObject.length; i++) {
+            tmpInputs.push({ key: inputObject[i]['key'], value: inputObject[i]['value'], order: inputObject[i]['order'] });
         }
 
-        if (tmpInputs.length === 0) {
-            inputItems.value = [{ key: "", value: "" }];
+        if (inputObject.length === 0) {
+            inputItems.value = [{ key: "", value: "", order: 0 }];
         } else {
-            inputItems.value = tmpInputs;
+            inputItems.value = inputObject;
         }
     } catch (e) {
-        inputItems.value = [{ key: "", value: "" }];
+        inputItems.value = [{ key: "", value: "", order: 0 }];
     }
 });
 
-const onInputItemsChange = (_) => {
-    let input = "{";
+const onInputItemsChange = (_) => {    
+    let input = "[";
     for (let i = 0; i < inputItems.value.length; i++) {
         if (i !== 0) {
             input += ", ";
         }
-        input += `"${escapeCharacters(
-            inputItems.value[i].key
-        )}": "${escapeCharacters(inputItems.value[i].value)}"`;
+        input += `{`;
+        input += `"key":"${escapeCharacters( inputItems.value[i].key )}",`;
+        input += `"value":"${escapeCharacters(inputItems.value[i].value)}",`;
+        input += `"order":${escapeCharacters(inputItems.value[i].order)}`;
+        input += `}`;
     }
-    input += "}";
-    emit("input-change", JSON.stringify(JSON.parse(input)));
+    input += "]";
+    emit("input-change", input);
 };
 
 const addInputItem = () => {
-    inputItems.value.push({ key: "", value: "" });
+    // .length might not work in some cases
+    inputItems.value.push({ key: "", value: "", order: inputItems.value.length });
     onInputItemsChange();
 };
 
