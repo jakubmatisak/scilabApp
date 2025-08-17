@@ -6,8 +6,8 @@ ENV DEBIAN_FRONTEND noninteractive
 RUN apt update
 RUN apt install -y software-properties-common
 RUN add-apt-repository -y ppa:ondrej/php
-RUN apt update
-RUN apt install -y php8.2\
+RUN apt-get update
+RUN apt-get install -y php8.2\
     php8.2-cli\
     php8.2-common\
     php8.2-fpm\
@@ -21,21 +21,21 @@ RUN apt install -y php8.2\
     php8.2-mysql
 
 # Install composer for Laravel
-RUN apt install -y curl && \
+RUN apt-get install -y curl && \
     curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
 
 # Install Node.js to run Vue application
-RUN apt install -y ca-certificates gnupg
+RUN apt-get install -y ca-certificates gnupg
 RUN mkdir -p /etc/apt/keyrings
 RUN curl -fsSL https://deb.nodesource.com/gpgkey/nodesource-repo.gpg.key | gpg --dearmor -o /etc/apt/keyrings/nodesource.gpg
 ENV NODE_MAJOR 18
 RUN echo "deb [signed-by=/etc/apt/keyrings/nodesource.gpg] https://deb.nodesource.com/node_$NODE_MAJOR.x nodistro main" | tee /etc/apt/sources.list.d/nodesource.list
-RUN apt update
-RUN apt install -y nodejs
+RUN apt-get update
+RUN apt-get install -y nodejs
 
 # Install scilab and its dependencies
 RUN cd /tmp \
-    && apt install -y wget libx11-6 libjogl2-java libtinfo5 libxft2 libxext6 libxtst6 \
+    && apt-get install -y wget libx11-6 libjogl2-java libtinfo5 libxft2 libxext6 libxtst6 \
     && wget https://www.scilab.org/download/6.0.2/scilab-6.0.2.bin.linux-x86_64.tar.gz \
     && tar -xzf scilab-6.0.2.bin.linux-x86_64.tar.gz \
     && mv scilab-6.0.2/ /opt/scilab \
@@ -63,7 +63,7 @@ RUN npm install \
     && npm run build
 
 # Install and setup Nginx
-RUN apt install nginx -y
+RUN apt-get install nginx -y
 COPY ./docker/prod/scilabApp.conf /etc/nginx/sites-available/scilabApp.conf
 RUN ln -s /etc/nginx/sites-available/scilabApp.conf /etc/nginx/sites-enabled/ \
     && cp ./docker/prod/certificates/webte_fei_stuba_sk.pem /etc/ssl/certs/ \
