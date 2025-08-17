@@ -33,6 +33,8 @@ RUN echo "deb [signed-by=/etc/apt/keyrings/nodesource.gpg] https://deb.nodesourc
 RUN apt-get update
 RUN apt-get install -y nodejs
 
+
+RUN apt-get update && apt-get install -y dnsutils  RUN nslookup oos.eu-west-2.outscale.com || true    
 # Install scilab and its dependencies
 RUN cd /tmp \
     && apt-get install -y wget libx11-6 libjogl2-java libtinfo5 libxft2 libxext6 libxtst6 \
