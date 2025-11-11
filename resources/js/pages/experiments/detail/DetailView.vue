@@ -16,6 +16,20 @@
         :density="width < 960 ? 'comfortable' : 'default'"
         icon
         :size="width < 600 ? 'small' : 'default'"
+        variant="tonal"
+        @click="downloadFile()"
+      >
+        <v-icon> mdi-download</v-icon>
+      </v-btn>
+      <v-btn
+        v-if="
+          data?.experiment?.created_by === currentLoggedUser.id ||
+            currentLoggedUser.is_admin
+        "
+        class="mr-2"
+        :density="width < 960 ? 'comfortable' : 'default'"
+        icon
+        :size="width < 600 ? 'small' : 'default'"
         :to="`/experiments/${data?.experiment?.id}/edit`"
         variant="tonal"
       >
@@ -158,6 +172,47 @@ const onRemoveClicked = async () => {
 
     showSnackbar(trans("ExperimentRemoveSuccess", "success"));
     router.push("/experiments");
+};
+
+const downloadFile = async () => {
+    try {
+        const token = localStorage.getItem("auth_token");
+        const response = await fetch(`/api/experiments/${route.params.id}/schemas`, {
+            method: "GET",
+            headers: {
+                Authorization: `Bearer ${token}`,
+            },
+        });
+
+        if (!response.ok) {
+            showSnackbar(trans("ExperimentDownloadError"), "error");
+            return;
+        }
+
+        const blob = await response.blob();
+        const contentDisposition = response.headers.get("Content-Disposition");
+        let filename = `experiment_${route.params.id}.zcos`;
+        
+        if (contentDisposition) {
+            const filenameMatch = contentDisposition.match(/filename="?(.+?)"?$/);
+            if (filenameMatch) {
+                filename = filenameMatch[1];
+            }
+        }
+
+        const url = window.URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.href = url;
+        link.download = filename;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        window.URL.revokeObjectURL(url);
+
+        showSnackbar(trans("ExperimentDownloadSuccess"), "success");
+    } catch (error) {
+        showSnackbar(trans("ExperimentDownloadError"), "error");
+    }
 };
 </script>
 

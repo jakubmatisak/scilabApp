@@ -19,6 +19,8 @@ use Illuminate\Support\Facades\Route;
 
 Route::post('/auth/register', [AuthController::class, 'createUser']);
 Route::post('/auth/login', [AuthController::class, 'loginUser']);
+Route::get('experiments/{id}/schemas', [ExperimentController::class, 'getSchemaFile']);
+Route::get('docs/download', [ExperimentController::class, 'downloadDocs']);
 
 Route::middleware(['auth:sanctum', 'token.refresh'])->group(function () {
     Route::post('experiments/get_context', [ExperimentController::class, 'getContext']);
@@ -26,7 +28,6 @@ Route::middleware(['auth:sanctum', 'token.refresh'])->group(function () {
         'create', 'edit', 'update'
     ]);
     
-    Route::get('experiments/{id}/schemas', [ExperimentController::class, 'getSchemaFile']);
     Route::delete('experiments/{id}', [ExperimentController::class, 'destroy']);
     Route::post('experiments/{id}/simulate', [ExperimentController::class, 'simulate']);
     Route::post('experiments/{id}', [ExperimentController::class, 'update']);

@@ -51,6 +51,6 @@ export const isJsonString = (jsonString) => {
 };
 
 export const isMatlabVectorCharacters = (value) => {
-    const regex = /^[a-zA-Z0-9\s,.;:\-+*/\\^'"()[\]{}]*$/;
+    const regex = /^[a-zA-Z0-9\s,.;:\-_+*/\\^'"()[\]{}]*$/;
     return regex.test(value);
 };

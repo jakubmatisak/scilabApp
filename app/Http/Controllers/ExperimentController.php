@@ -89,8 +89,8 @@ class ExperimentController extends Controller
      *                  required={"file", "name", "context", "output", "save"},
      *                  @OA\Property(property="file", type="string", format="binary", description="Experiment file"),
      *                  @OA\Property(property="name", type="string", description="Name", example="Experiment"),
-     *                  @OA\Property(property="context", type="string", description="Context", example="{""time"": 15, ""H"": ""8*2^3""}"),
-     *                  @OA\Property(property="output", type="string", description="Output", example="[""time"", ""velocity"", ""height""]"),
+     *                  @OA\Property(property="context", type="string", format="json", description="Context (JSON string)", example="{}"),
+     *                  @OA\Property(property="output", type="string", format="json", description="Output (JSON array as string)", example="[{}]",default="[{}]"),
      *                  @OA\Property(property="save", type="integer", description="Save", enum={0, 1})
      *              ),
      *         ),
@@ -372,8 +372,8 @@ class ExperimentController extends Controller
      *                  type="object",
      *                  @OA\Property(property="file", type="string", format="binary", description="Experiment file"),
      *                  @OA\Property(property="name", type="string", description="Name", example="Experiment"),
-     *                  @OA\Property(property="context", type="string", description="Context", example="{""time"": 15, ""H"": ""8*2^3""}"),
-     *                  @OA\Property(property="output", type="string", description="Output", example="[""time"", ""velocity"", ""height""]"),
+     *                  @OA\Property(property="context", type="string", format="json", description="Context (JSON string)", example="{""time"": 15, ""H"": ""8*2^3""}"),
+     *                  @OA\Property(property="output", type="string", format="json", description="Output (JSON array as string)", example="[""time"", ""velocity"", ""height""]"),
      *              ),
      *         ),
      *      ),
@@ -848,5 +848,19 @@ class ExperimentController extends Controller
         } catch(\Exception $e){
             return response()->json(["message"=>$e->getMessage()], 500);
         }
+    }
+
+    /**
+     * Download API documentation PDF
+     */
+    public function downloadDocs()
+    {
+        $filePath = 'docs/api-docs.pdf';
+        
+        if (!Storage::exists($filePath)) {
+            return response()->json(["message"=>"Documentation file not found."], 404);
+        }
+
+        return Storage::download($filePath, 'api-documentation.pdf');
     }
 }

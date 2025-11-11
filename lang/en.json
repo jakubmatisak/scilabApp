@@ -37,7 +37,7 @@
     "ExperimentOutputStringsError": "Output must contain only strings",
     "ExperimentOutputUniqueStringError": "Output must contain unique strings",
     "ExperimentInputUniqueKeyError": "Input keys must contain unique strings",
-    "ExperimentInputValueError": "Input values accepts only characters a-z A-Z 0-9 () [] {} , . ; : + - * / \\ ^ ' \"",
+    "ExperimentInputValueError": "Input values accepts only characters a-z A-Z 0-9 () [] {} , . ; : + - * _ / \\ ^ ' \"",
     "ExperimentContextError": "Input is not a valid JSON",
     "ExperimentResult": "Experiment Result",
     "GraphNoData": "No data for graph",

@@ -19,3 +19,4 @@ yarn-error.log
 /.vscode
 package-lock.json
 lang/php_*.json
+/storage/experiment_files/*

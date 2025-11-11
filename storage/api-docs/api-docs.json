@@ -258,14 +258,17 @@
                                         "example": "Experiment"
                                     },
                                     "context": {
-                                        "description": "Context",
+                                        "description": "Context (JSON string)",
                                         "type": "string",
-                                        "example": "{\"time\": 15, \"H\": \"8*2^3\"}"
+                                        "format": "json",
+                                        "example": "{}"
                                     },
                                     "output": {
-                                        "description": "Output",
+                                        "description": "Output (JSON array as string)",
                                         "type": "string",
-                                        "example": "[\"time\", \"velocity\", \"height\"]"
+                                        "format": "json",
+                                        "default": "[{}]",
+                                        "example": "[{}]"
                                     },
                                     "save": {
                                         "description": "Save",
@@ -547,13 +550,15 @@
                                         "example": "Experiment"
                                     },
                                     "context": {
-                                        "description": "Context",
+                                        "description": "Context (JSON string)",
                                         "type": "string",
+                                        "format": "json",
                                         "example": "{\"time\": 15, \"H\": \"8*2^3\"}"
                                     },
                                     "output": {
-                                        "description": "Output",
+                                        "description": "Output (JSON array as string)",
                                         "type": "string",
+                                        "format": "json",
                                         "example": "[\"time\", \"velocity\", \"height\"]"
                                     }
                                 },

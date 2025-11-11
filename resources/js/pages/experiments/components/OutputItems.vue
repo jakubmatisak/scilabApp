@@ -35,7 +35,8 @@
       <template #append>
         <v-icon
           class="icon"
-          color="error"
+          :color="idx !== 0 ? 'error' : 'grey'"
+          :disabled="idx === 0"
           @click="removeOutputItem(idx)"
         >
           mdi-minus-circle
@@ -52,7 +53,7 @@ import { escapeCharacters } from "../utils/escapeUtils";
 import { useWindowSize } from "@vueuse/core";
 
 const { width } = useWindowSize();
-const outputItems = ref([""]);
+const outputItems = ref(["time", ""]);
 const emit = defineEmits(["output-change"]);
 const props = defineProps({
     formState: {
@@ -70,7 +71,7 @@ watch(props.formState, (newProps, _) => {
             Array.isArray(outputArray)
         ) {
             if (outputArray.length === 0) {
-                outputItems.value = [""];
+                outputItems.value = ["time", ""];
             } else {
                 outputItems.value = outputArray;
             }
