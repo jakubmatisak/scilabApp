@@ -8,10 +8,6 @@
       :title="$t('ExperimentDetailTitle')"
     >
       <v-btn
-        v-if="
-          data?.experiment?.created_by === currentLoggedUser.id ||
-            currentLoggedUser.is_admin
-        "
         class="mr-2"
         :density="width < 960 ? 'comfortable' : 'default'"
         icon
