@@ -66,8 +66,8 @@ RUN npm install \
 RUN apt install nginx -y
 COPY ./docker/prod/scilabApp.conf /etc/nginx/sites-available/scilabApp.conf
 RUN ln -s /etc/nginx/sites-available/scilabApp.conf /etc/nginx/sites-enabled/ \
-    && cp ./docker/prod/certificates/webte_fei_stuba_sk.pem /etc/ssl/certs/ \
-    && cp ./docker/prod/certificates/webte.fei.stuba.sk.key /etc/ssl/private/
+     && cp ./docker/prod/certificates/iolab_sk.pem /etc/ssl/certs/ \
+     && cp ./docker/prod/certificates/www.iolab.sk.key /etc/ssl/private/
 
 # Setup php-fpm
 RUN mkdir -p /run/php/ \
