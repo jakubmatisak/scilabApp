@@ -1,0 +1,12 @@
+...
+
+- inside phpmyadmin container fixed (temp) - TODO: fix in docker setup
+
+```
+$cfg['PmaAbsoluteUri'] = 'https://api4scilab.iolab.sk/phpmyadmin';
+```
+
+...
+
+
+- added logging to ExperimentController (simulation endpoint), to log state of inputs; in case the app fails on corrupted input

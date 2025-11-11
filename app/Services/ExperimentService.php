@@ -62,9 +62,11 @@ class ExperimentService
         $result_array = [];
         foreach ($result as $string) {
             $string = trim($string);
-            $values = array_map(function($item) {
-                return floatval(trim($item));
-            }, explode("\n", $string));
+	    $values = array_map(function($item) {
+		    $item = trim($item);
+                $item = str_replace('D', 'E', $item); 
+		    return floatval($item);
+	    }, explode("\n", $string));
 
             $values_count = count($values);
             $output_count = count($outputValues);

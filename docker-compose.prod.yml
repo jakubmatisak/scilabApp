@@ -2,18 +2,19 @@ name: scilab-prod
 version: "3.9"
 services:
   scilab:
+    restart: unless-stopped
     build:
       context: .
       dockerfile: docker/prod/Dockerfile
     volumes:
       - experimentfiles:/var/www/scilabApp/storage/app/experiment_files
       - phpmyadmindata:/var/www/phpmyadmin
+      - scilab-logs:/var/log
     environment:
       - APP_ENV=production
-    restart: always
     ports:
-      - 8080:80
-      - 443:443
+      - 6480:80
+      - 6443:443
     depends_on:
       database:
         condition: service_healthy
@@ -22,7 +23,7 @@ services:
     image: mysql:8.0
     ports:
       - 3306:3306
-    restart: always
+    restart: unless-stopped
     environment:
       - MYSQL_DATABASE=${DB_DATABASE}
       - MYSQL_USER=${DB_USERNAME}
@@ -36,6 +37,7 @@ services:
       retries: 10
 
   phpmyadmin:
+    restart: unless-stopped
     image: phpmyadmin/phpmyadmin:5-fpm-alpine
     environment:
       PMA_HOST: database
@@ -48,6 +50,7 @@ services:
 
 volumes:
   experimentfiles:
+  scilab-logs:
 
   mysqldata:
 
