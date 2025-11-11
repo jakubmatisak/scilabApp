@@ -38,12 +38,12 @@ export default defineConfig(({ mode }) => {
         server: {
             host: true,
             port: 3000,
-            https: isProduction && {
+             https: isProduction && {
                 cert: fs.readFileSync(
-                    "./docker/prod/certificates/webte_fei_stuba_sk.pem"
+                    "./docker/prod/certificates/iolab_sk.pem"
                 ),
                 key: fs.readFileSync(
-                    "./docker/prod/certificates/webte.fei.stuba.sk.key"
+                    "./docker/prod/certificates/www.iolab.sk.key"
                 ),
             },
             hmr: isProduction ? false : { port: 3000 },
